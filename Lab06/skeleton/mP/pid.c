@@ -141,7 +141,7 @@ IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickne
 int ColorTracking (IplImage* img, int* positionX , int* positionY, int color, int* posX , int* posY, int count, int drawTraj)
 {
     // add your Color tracking algorithm here
-
+    //TODO ask what the inputs are!!
 	return 0;
 }
 
@@ -179,8 +179,8 @@ int MoveMotor (int fd, float distance, int motor)
     int response = 0;
 
     // The distance must be below the maximum range of 5mm.
-    if (motor != 1 || motor != 2) return -1;
-    if (abs(distance) > 5 ) return -2;
+    if (motor != 1 && motor != 2) return -1;
+    if (abs(distance) > 5 ) return -1;
 	// Create appropriate 5 byte command and write it to the serial port
     steps = distance / 5 *999;
     constructCommand(cmd, steps, motor);
@@ -191,8 +191,9 @@ int MoveMotor (int fd, float distance, int motor)
       serialport_read_until(fd, buffer, '\0', 1, 10);
     }
 
-    if (buffer[0] == '1'){
+    if (buffer[0] != '0'){
       printf("Switch number %u activated.\n", buffer[0])
+      return 1;
     }
 
 
@@ -208,6 +209,12 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
     // Task 5:
     // initialize your variables here
     FILE *fp;
+    hmin = 0;
+    smin = 0;
+    vmin = 0;
+    hmax = 255;
+    smax = 255;
+    vmax = 255;
 
 
     // Create a .txt file
@@ -216,12 +223,63 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
     {
 		printf("Could not create a .txt file...\n");
 		return -1;
-	}
+	   }
 
+
+
+    if (useVision){
+      capture = cvCaptureFromCAM(camIndex);
+      cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,840);
+      cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,840);
+
+      if (!capture){
+      printf("Could not initialize capturing...\n");
+      return -1;
+      }
+      usleep(10);
+      // Create image windows
+      cvNamedWindow("Original image with target", CV_WINDOW_AUTOSIZE);
+      while(1)
+      {
+      // Grab the new frame from the camera. "frame" variable can later be used in ColorTracking() function
+      frame = cvQueryFrame(capture);
+      usleep(10);
+
+      if (!frame){
+      printf("Could not grab frame\n");
+      return -1;
+      }
+
+      ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
+  		ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+
+      MoveMotor(5,1,1);
+
+      ColorTracking(frame, &positionXfinal, &positionYfinal, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+
+
+      cvShowImage("Original image with target",frame);
+      int c = cvWaitKey(10); // you need this after showing an image
+      if (c != -1)
+      break;
+      usleep(10);
+      }
+      cvReleaseImage(&frame);
+      cvReleaseImage(&capture);
+    }
+
+    else {
+      MoveMotor(fd, 5, 1);
+      MoveMotor(fd, 5, 2);
+      MoveMotor(fd, -5, 1);
+      MoveMotor(fd -5, 2);
+    }
+    }
      // Move the stage along all 4 sides
 
 	 // If vision is used, initialize camera and  store the coordinates at each point (during movement!)
      // in the .txt file
+
 
 		// Get camera
 
@@ -269,7 +327,7 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
 
 
 	// Create a .txt file
-  fp = fopen("position.txt" ,"a");
+  fp = fopen("PIDposition.txt" ,"a");
 
 
 	// Grab the frame from the camera
@@ -295,7 +353,6 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
       // Determine the P, I and D (each for X and Y axis seperately)
       // Compute the control command
       currentIX = oldIX + ki* (oldErrorX+ErrorX+arwX)/2.0 * dt;
-      oldIX = currentIX;
       vx = kp*ErrorX + currentIX + kd*(ErrorX-oldErrorX)/dt;
 
       currentIY = oldIY + ki* (oldErrorY+ErrorY+arwY)/2.0 * dt;
@@ -333,6 +390,7 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
       timeval.currentTime = GetTime();
       errorX = targetPositionX-positionX;
       errorY = targetPositionY-positionY;
+      oldIX = currentIX;
 
   }
 

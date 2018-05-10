@@ -13,7 +13,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 
-// Draw a cross on image 
+
+// Draw a cross on image
 IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickness);
  /*
   * inImg: input image
@@ -24,7 +25,7 @@ IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickne
 
 
 // Set parameters for Color Tracking
-int ColorTrackingSetColors (IplImage* img, 
+int ColorTrackingSetColors (IplImage* img,
 int* hmax, int* hmin, int* smax, int* smin, int* vmax, int* vmin);
  /*
   * img: input image

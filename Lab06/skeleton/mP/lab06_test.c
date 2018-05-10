@@ -129,7 +129,7 @@ int main ()
     // --------------------------------------------------------------------------
     ////////////////////////////////////
     // Task 4: move the stage in a direction with a specified distance and track the position to calibrate the camera.
-
+    if (choice == 4){
     capture = cvCaptureFromCAM(3);
     cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,840);
     cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,840);
@@ -166,21 +166,20 @@ int main ()
     break;
     usleep(10);
     }
-    cvReleaseCapture(&capture);
-
+    cvReleaseImage(&frame);
+    cvReleaseImage(&capture);
+  }
 
     //---------------------------------------------------------------------------
 
     // Task 6: move the stage in a square (5 mm sidelength) and save the coordinates
+    if (choice == 6){
 
+
+    }
 
 
 	//---------------------------------------------------------------------------
-
-
-
-
-
 
 
 
@@ -188,9 +187,26 @@ int main ()
     //---------------------------------------------------------------------------
     ////////////////////////////////////
     // Task 8: Move the magnet 5 mm with the PID function.
+  if (choice == 8) {
+
+    frame = cvQueryFrame(capture);
+
+    usleep(10);
+    if (!frame)
+    {
+    printf("Could not grab frame\n");
+    return -1;
+    }
+
+    ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+
+    PID(fd, positionXinitial + 5, positionYinitial, capture);
 
 
 
+
+
+  }
     //---------------------------------------------------------------------------
 
 
@@ -199,7 +215,9 @@ int main ()
 
     //---------------------------------------------------------------------------
     // Task 9: Tune your Kp Value to achieve a "good" step response.
+  if (choice == 9){
 
+ }
 
 
     //---------------------------------------------------------------------------
@@ -207,7 +225,9 @@ int main ()
 
     //---------------------------------------------------------------------------
     // Task 10: Use PID for position control, move magnet 5 mm.
+  if (choice == 10){
 
+  }
 
 
 
@@ -218,7 +238,9 @@ int main ()
     //---------------------------------------------------------------------------
     ///////////////////////////////////////
     // Task 12: Use PID function to move spherical magnet along a square trajectory (5 mm sidelength)
+    if (choice == 12){
 
+    }
 
 
     //---------------------------------------------------------------------------
@@ -227,13 +249,17 @@ int main ()
     //---------------------------------------------------------------------------
     ////////////////////////////////////////////
     // Task 15: Move the microrobot on a square trajectory (5 mm sidelength) with open loop and closed loop (PID)
+    if (choice == 15){
 
+    }
 
 
     //---------------------------------------------------------------------------
 
 
     // Release captured images
+    cvReleaseImage(%frame);
+    cvReleaseCapture(&capture);
 
 
     // Close the serial port
