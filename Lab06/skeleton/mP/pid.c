@@ -22,6 +22,7 @@
  */
 
 // write your includes here
+#include <time.h>
 
 
 int serialport_init(const char* serialport, int baud)
@@ -244,45 +245,96 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
 
 int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
 {
-    // Task 7,10:
-    // initialize your variables here
-    struct timeval currentTime;
-    struct timeval prevTime;
+  // Task 7,10:
+  // initialize your variables here
+  struct timeval currentTime;
+  struct timeval prevTime;
+
 	IplImage* frame;
 	FILE *fp;
+  CvScalar min = cvScalar(0, 0, 0);
+	CvScalar max = cvScalar(255, 255, 200);
+  int ErrorX, ErrorY, oldErrorX, oldErrorY;
+  float oldIX, currentIX;
+  float oldIY, currentIY;
+  float kd, kp, ki;
+  int positionX, positionY;
+  int treshhold = 5;
+  int v_sat = 1;
+  float vx, vy;
+  float arwX, arwY;
+  float Tt = 1;
+  char commandX[5];
+  char commandY[5];
+
 
 	// Create a .txt file
+  fp = fopen("position.txt" ,"a");
 
 
 	// Grab the frame from the camera
+  frame = cvQueryFrame(capture);
 
-    // Find the X and Y coordinates of an object
+  // Find the X and Y coordinates of an object
+  ColorTracking(frame, &positionX , &positionY, min, max);
 
 	// Get current time and initial error
+  timeval.currentTime = GetTime();
+
+  oldIX = 0;
+  oldIY = 0;
+  arwX = 0;
+  arwy = 0;
 
     // write your do - while loop here
+    while (errorX > threshold || errorY > threshold){
 
-		// Determine the time interval
+      // Determine the time interval
+      dt = timeval.currentTime - timeval.prevTime;
 
-        // Determine the P, I and D (each for X and Y axis seperately)
+      // Determine the P, I and D (each for X and Y axis seperately)
+      // Compute the control command
+      currentIX = oldIX + ki* (oldErrorX+ErrorX+arwX)/2.0 * dt;
+      oldIX = currentIX;
+      vx = kp*ErrorX + currentIX + kd*(ErrorX-oldErrorX)/dt;
 
-		// Compute the control command
+      currentIY = oldIY + ki* (oldErrorY+ErrorY+arwY)/2.0 * dt;
+      oldIY = currentIY;
+      vy = kp*ErrorY + currentIY + kd*(ErrorY-oldErrorY)/dt;
 
-        // Move the stage axis X
+      (vx > v_sat) ? ux = v_sat : ux = vx;
+      (vy > v_sat) ? vx = v_sat : uy = vy;
 
-		// Wait until done
+      arwX = (ux - vx)/Tt;
+      arwY = (uy - vy)/Tt;
 
-		// Move the stage axis Y
 
-		// Wait until done
 
-		// Grab the new frame from the camera
+      // Move the stage axis X
+      MoveMotor(fd, ux, 1);
 
-		// Determine the new position
+  		// Wait until done
+      //TODO figure out how
 
-		// Save the new position as current position
+  		// Move the stage axis Y
+      MoveMotor(fd, uy, 2);
+  		// Wait until done
+      //TODO figure out how
 
-		// Get current time and update the error
+  		// Grab the new frame from the camera
+      frame = cvQueryFrame(capture);
+
+  		// Determine the new position
+      ColorTracking(frame, &positionX , &positionY, min, max);
+  		// Save the new position as current position
+      //NOTE isn't it automatically done?
+  		// Get current time and update the error
+      timeval.prevTime = timeval.currentTime;
+      timeval.currentTime = GetTime();
+      errorX = targetPositionX-positionX;
+      errorY = targetPositionY-positionY;
+
+  }
 
 
 	fclose(fp);
