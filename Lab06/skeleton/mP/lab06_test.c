@@ -174,8 +174,7 @@ int main ()
 
     // Task 6: move the stage in a square (5 mm sidelength) and save the coordinates
     if (choice == 6){
-
-
+      MoveMotorRectangular(fd, 5, 255, 1, 1 )
     }
 
 
