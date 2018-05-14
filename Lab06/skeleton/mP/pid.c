@@ -23,6 +23,7 @@
 
 // write your includes here
 #include <time.h>
+#include "pid.h"
 
 
 int serialport_init(const char* serialport, int baud)
@@ -180,7 +181,7 @@ int constructCommand (char* command, int u, int motor)
   digit3 = (motor-100*digit1-10*digit2);
 	// Task 2:
     // First byte determines the motor to be moved
-    command[0] = atoi(motor);
+    command[0] = motor +'0';
 
 	// Second byte determines the direction of movement
     (u>=0) ? command[1]=1 : command[1]= 2;
@@ -199,7 +200,7 @@ int MoveMotor (int fd, float distance, int motor)
 {
     // Task 3:
     // initialize variables here
-    char[5] cmd;
+    char cmd[5];
     int steps;
     char buffer;
     int response = 0;
@@ -214,11 +215,11 @@ int MoveMotor (int fd, float distance, int motor)
     // serialport_read_until(fd, buff, '\0', 1, 10) until you get a response
     while(!response){
       usleep(10);
-      serialport_read_until(fd, buffer, '\0', 1, 10);
+      serialport_read_until(fd, &buffer, '\0', 1, 10);
     }
 
-    if (buffer[0] != '0'){
-      printf("Switch number %u activated.\n", buffer[0])
+    if (buffer != '0'){
+      printf("Switch number %u activated.\n", buffer);
       return 1;
     }
 
@@ -235,14 +236,15 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
     // Task 5:
     // initialize your variables here
     FILE *fp;
-    hmin = 0;
-    smin = 0;
-    vmin = 0;
-    hmax = 255;
-    smax = 255;
-    vmax = 255;
-
-
+    int hmin = 0;
+    int smin = 0;
+    int vmin = 0;
+    int hmax = 255;
+    int smax = 255;
+    int vmax = 255;
+	IplImage* frame;
+	CvCapture* capture;
+	int positionXinitial, positionYinitial, positionXfinal, positionYfinal;
     // Create a .txt file
     fp = fopen("RectangularCoord.txt", "w+");
     if (!fp)
@@ -276,7 +278,7 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
       return -1;
       }
 
-      ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
+      //ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
   		ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
 
       MoveMotor(5,1,1);
@@ -291,16 +293,16 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
       usleep(10);
       }
       cvReleaseImage(&frame);
-      cvReleaseImage(&capture);
+      cvReleaseCapture(&capture);
     }
 
     else {
       MoveMotor(fd, 5, 1);
       MoveMotor(fd, 5, 2);
       MoveMotor(fd, -5, 1);
-      MoveMotor(fd -5, 2);
+      MoveMotor(fd, -5, 2);
     }
-    }
+    
      // Move the stage along all 4 sides
 
 	 // If vision is used, initialize camera and  store the coordinates at each point (during movement!)
@@ -340,11 +342,11 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
   int ErrorX, ErrorY, oldErrorX, oldErrorY;
   float oldIX, currentIX;
   float oldIY, currentIY;
-  float kd, kp, ki;
+  float kd, kp, ki, dt;
   int positionX, positionY;
-  int treshhold = 5;
+  int threshold = 5;
   int v_sat = 1;
-  float vx, vy;
+  float vx, vy, uy, ux;
   float arwX, arwY;
   float Tt = 1;
   char commandX[5];
@@ -362,18 +364,18 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
   ColorTracking(frame, &positionX , &positionY, min, max);
 
 	// Get current time and initial error
-  timeval.currentTime = GetTime();
+  gettimeofday(&currentTime, NULL);
 
   oldIX = 0;
   oldIY = 0;
   arwX = 0;
-  arwy = 0;
+  arwY = 0;
 
     // write your do - while loop here
-    while (errorX > threshold || errorY > threshold){
+    while (ErrorX > threshold || ErrorY > threshold){
 
       // Determine the time interval
-      dt = timeval.currentTime - timeval.prevTime;
+      dt = currentTime.tv_sec - prevTime.tv_sec;
 
       // Determine the P, I and D (each for X and Y axis seperately)
       // Compute the control command
@@ -411,10 +413,11 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
   		// Save the new position as current position
       //NOTE isn't it automatically done?
   		// Get current time and update the error
-      timeval.prevTime = timeval.currentTime;
-      timeval.currentTime = GetTime();
-      errorX = targetPositionX-positionX;
-      errorY = targetPositionY-positionY;
+	  prevTime = currentTime;
+      gettimeofday(&currentTime, NULL);
+      
+      ErrorX = targetPositionX-positionX;
+      ErrorY = targetPositionY-positionY;
       oldIX = currentIX;
 
   }

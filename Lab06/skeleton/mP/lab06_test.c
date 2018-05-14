@@ -114,7 +114,8 @@ int main ()
   	int positionXfinal;
   	int positionYfinal;
     int deltaPixelX = 0;
-
+	CvCapture* capture;
+	IplImage* frame;
 
 
 
@@ -122,7 +123,7 @@ int main ()
   fd = serialport_init("/dev/ttymxc3", 115200);
 	// prompt user to select a certain task
   printf("Please choose a task to be performed: \n");
-  printf("Press 1 for.... 2 for ...")
+  printf("Press 4\n");
   scanf("%d", &choice);
 
 
@@ -153,7 +154,7 @@ int main ()
     return -1;
     }
 
-    ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
+    //ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
 		ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
 
     MoveMotor(5,1,1);
@@ -172,14 +173,14 @@ int main ()
     usleep(10);
     }
     cvReleaseImage(&frame);
-    cvReleaseImage(&capture);
+    cvReleaseCapture(&capture);
   }
 
     //---------------------------------------------------------------------------
 
     // Task 6: move the stage in a square (5 mm sidelength) and save the coordinates
     if (choice == 6){
-      MoveMotorRectangular(fd, 5, 255, 1, 1 )
+      MoveMotorRectangular(fd, 5, 255, 1, 1 );
     }
 
 
@@ -262,7 +263,7 @@ int main ()
 
 
     // Release captured images
-    cvReleaseImage(%frame);
+    cvReleaseImage(&frame);
     cvReleaseCapture(&capture);
 
 
