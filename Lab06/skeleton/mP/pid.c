@@ -138,11 +138,53 @@ IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickne
 	return outImg;
 }
 
-int ColorTracking (IplImage* img, int* positionX , int* positionY, int color, int* posX , int* posY, int count, int drawTraj)
+int ColorTracking (IplImage* img, int* positionX , int* positionY, CvScalar min, CvScalar max)
 {
     // add your Color tracking algorithm here
     //TODO ask what the inputs are!!
-	return 0;
+    IplImage* imgHSV = cvCreateImage(cvGetSize(img), 8, 3);
+
+    cvCvtColor(img, imgHSV, CV_RGB2BGR);
+
+    IplImage* imgThresh = cvCreateImage(cvGetSize(img), 8, 1);
+
+    cvInRangeS(imgHSV, min, max, imgThresh);
+
+      // Create memory space for moments
+      CvMoments *moments_y = (CvMoments*)malloc(sizeof(CvMoments));
+
+      // Calculate moments
+      cvMoments(imgThresh,moments_y,1);
+
+      // Extract spatial moments and area
+      double moment10_y = moments_y->m10;
+      double moment01_y = moments_y->m01;
+      double area_y = moments_y->m00;
+
+      *positionX = moment10_y/area_y;
+      *positionY = moment01_y/area_y;
+
+
+      IplImage* imgWithCross = cvCreateImage(cvGetSize(img), 8, 3);
+      imgWithCross = cvCloneImage(img);
+      imgWithCross = CrossTarget(imgWithCross, *positionX, *positionY, 25, 3);
+
+       cvShowImage("Set",imgWithCross);
+
+      if (frcounter%30 == 0)
+      {
+          char filename[50];
+          sprintf(filename,"Crossed_frame%d.jpg",frcounter);
+          SvImage(imgWithCross,filename);
+      }
+
+      // Release created images and free (free()) memory (moments_y)
+      free(moments_y);
+      cvReleaseImage(&imgHSV);
+      cvReleaseImage(&imgThresh);
+      cvReleaseImage(&imgWithCross);
+
+      return 0;
 }
 
 int constructCommand (char* command, int u, int motor)
@@ -279,7 +321,6 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
 
 	 // If vision is used, initialize camera and  store the coordinates at each point (during movement!)
      // in the .txt file
-
 
 		// Get camera
 

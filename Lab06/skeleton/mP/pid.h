@@ -8,12 +8,12 @@
 #include <opencv2/legacy/legacy.hpp>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include <stdio.h>    // Standard input/output definitions 
-#include <unistd.h>   // UNIX standard function definitions 
-#include <fcntl.h>    // File control definitions 
-#include <errno.h>    // Error number definitions 
-#include <termios.h>  // POSIX terminal control definitions 
-#include <string.h>   // String function definitions 
+#include <stdio.h>    // Standard input/output definitions
+#include <unistd.h>   // UNIX standard function definitions
+#include <fcntl.h>    // File control definitions
+#include <errno.h>    // Error number definitions
+#include <termios.h>  // POSIX terminal control definitions
+#include <string.h>   // String function definitions
 
 /*
 Function serialport_init initializes a serial port for communication.
@@ -50,9 +50,9 @@ int timeout - timeout in seconds
 int serialport_read_until(int fd, char* buf, char until, int buf_max, int timeout);
 
 /*
-Function CrossTarget overlays a cross at a certain target position, on a provided image 
+Function CrossTarget overlays a cross at a certain target position, on a provided image
 Inputs:
-IplImage* inImg - source image  
+IplImage* inImg - source image
 int x - x coordinate of the target
 int y - y coordinate of the target
 int size - half of the size of the cross that is drawn on the provided image (in pixels)
@@ -67,7 +67,7 @@ IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickne
 /*
 Function ColorTracking detects the center of a specific color in the source image
 Inputs:
-IplImage* inImg - source image  
+IplImage* inImg - source image
 int color - if 1, blue color is detected and if 2, yellow color is detected
 Outputs:
 int* positionX - x coordinate of the center of detected color (in pixels)
@@ -75,10 +75,10 @@ int* positionY - y coordinate of the center of detected color (in pixels)
 Return:
 0
 */
-int ColorTracking (IplImage* img, int* positionX , int* positionY, int color, int* posX , int* posY, int count, int drawTraj);
+int ColorTracking (IplImage* img, int* positionX , int* positionY, CvScalar min, CvScalar max);
 
 /*
-Function constructCommand creates command to be sent over serial, for the SAM3x microcontroller 
+Function constructCommand creates command to be sent over serial, for the SAM3x microcontroller
 Inputs:
 int u - number of steps
 int motor - stage (motor) number that determines the axis
@@ -113,7 +113,7 @@ number of steps per each rectangle side. Additionally, if camera is used, coordi
 are written in a .txt file.
 Inputs:
 int fd - serial port index
-float distance - length of each rectangle side (in mm). Each step has to be <5 mm (999 steps - 3 byte limitation) 
+float distance - length of each rectangle side (in mm). Each step has to be <5 mm (999 steps - 3 byte limitation)
 int steps - number of steps that each rectangle side is divided in
 int useVision - if 0, vision is not used, otherwise yes
 int camIndex - system camera index (if vision is not used, it is not considered so it can be any number)
@@ -130,8 +130,8 @@ Notes:
 int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int camIndex);
 
 /*
-Function PID uses a color tracker to control the movement of the stages. It can only move one stage 
-at a time. 
+Function PID uses a color tracker to control the movement of the stages. It can only move one stage
+at a time.
 Inputs:
 int fd - serial port index
 int targetPosition - coordinate of the target (in pixels)
@@ -148,4 +148,3 @@ Notes:
 */
 
 int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture);
-
