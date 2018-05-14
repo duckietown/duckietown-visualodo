@@ -92,22 +92,22 @@ int move_steps (int steps, int dir, int motor) {
   // Create a loop, which is executed if steps > 0 and the limit switch has not been reached,
   // in the loop, move the desired motor in small steps (stepsize). Execute the loop until you moved
   // the whole distance
-  while (steps > 0 && digitalRead(switch_check) == LOW){
-    if (motor == 1 ) myMotor1->step(stepSize, dir, SINGLE);
-    if (motor == 2 ) myMotor2->step(stepSize, dir, SINGLE);
+  while (steps > 0 && digitalRead(switch_check) == HIGH){
+    if (motor == 1 ) myMotor1->step(stepSize, dir, DOUBLE);
+    if (motor == 2 ) myMotor2->step(stepSize, dir, DOUBLE);
     steps -= stepSize;
   }
 
   // After running the loop, return ASCII for the switches
 
     // If switch 1 is pressed, return '1'
-   if (digitalRead(switch1) == HIGH) return 49;
+   if (digitalRead(switch1) == LOW) return 49;
     // If switch 2 is pressed, return '2'
-   else if(digitalRead(switch2) == HIGH) return 50;
+   else if(digitalRead(switch2) == LOW) return 50;
     // If switch 3 is pressed, return '3'
-   else if(digitalRead(switch3) == HIGH) return 51;
+   else if(digitalRead(switch3) == LOW) return 51;
     // If switch 4 is pressed, return '4'
-   else if(digitalRead(switch4) == HIGH) return 52;
+   else if(digitalRead(switch4) == LOW) return 52;
     // Else, return '0'
    else return 48;
 }
@@ -118,7 +118,6 @@ void loop() {
   char command[50];
   char check;
   byte read_check;
-  int flag = 1; //if 1 command is proper, else not
   int steps = 0;
   int motor = 0;
   int direction = 0;
@@ -149,27 +148,27 @@ void loop() {
   {
     // Check the first byte and if it is not '1' or '2' discard it
     // First byte determines the stage (stepper motor) that needs to be moved
-    if (command[0]!='1' || command[0]!= '2') flag = 0;
+    if (command[0]!='1' && command[0]!= '2') check = '5';
 
     // Check the second byte and if it is not '1' or '2' discard it
     // Second byte determines the direction
-    if (command[1]!='1' || command[1]!= '2') flag = 0;
+    if (command[1]!='1' && command[1]!= '2') check = '5';
 
     // Check that third to fifth bytes are between '0' and '9'
     // make sure to convert from chars to integers (subtract 48, the ASCII constant) and multiply accordingly
     for (int i=2; i<5; i++){
-      if ( (command[i]-48) < 0 || (command[i]-48) > 9 ) flag = 0;
+      if ( (command[i]-48) < 0 || (command[i]-48) > 9 ) check = '5';
     }
 
 
-    motor =command[0]-48;
-    direction = command[1]-48;
-    steps = (command[2]-48)*100+(command[3]-48)*10+(command[4]-48);
+    motor =(int)command[0]-48;
+    direction = (int)command[1]-48;
+    steps = ((int)command[2]-48)*100+((int)command[3]-48)*10+((int)command[4]-48);
 
 
     // If everything is fine, move the motors
-    if (flag){
-      check = move_steps (command[0], command[1], steps);
+    if (check != '5'){
+      check = move_steps (steps, direction, motor);
     }
 
 
