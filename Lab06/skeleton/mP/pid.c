@@ -141,7 +141,6 @@ IplImage* CrossTarget (IplImage* inImg, int x, int y, int size, int line_thickne
 int ColorTracking (IplImage* img, int* positionX , int* positionY, CvScalar min, CvScalar max)
 {
     // add your Color tracking algorithm here
-    //TODO ask what the inputs are!!
     IplImage* imgHSV = cvCreateImage(cvGetSize(img), 8, 3);
 
     cvCvtColor(img, imgHSV, CV_RGB2BGR);
@@ -164,25 +163,10 @@ int ColorTracking (IplImage* img, int* positionX , int* positionY, CvScalar min,
       *positionX = moment10_y/area_y;
       *positionY = moment01_y/area_y;
 
-
-      IplImage* imgWithCross = cvCreateImage(cvGetSize(img), 8, 3);
-      imgWithCross = cvCloneImage(img);
-      imgWithCross = CrossTarget(imgWithCross, *positionX, *positionY, 25, 3);
-
-       cvShowImage("Set",imgWithCross);
-
-      if (frcounter%30 == 0)
-      {
-          char filename[50];
-          sprintf(filename,"Crossed_frame%d.jpg",frcounter);
-          SvImage(imgWithCross,filename);
-      }
-
       // Release created images and free (free()) memory (moments_y)
       free(moments_y);
       cvReleaseImage(&imgHSV);
       cvReleaseImage(&imgThresh);
-      cvReleaseImage(&imgWithCross);
 
       return 0;
 }

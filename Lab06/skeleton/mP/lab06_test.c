@@ -113,6 +113,7 @@ int main ()
   	int positionYinitial;
   	int positionXfinal;
   	int positionYfinal;
+    int deltaPixelX = 0;
 
 
 
@@ -158,6 +159,10 @@ int main ()
     MoveMotor(5,1,1);
 
     ColorTracking(frame, &positionXfinal, &positionYfinal, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+
+    deltaPixelX = positionXfinal- positionXinitial;
+
+    printf("The travelled distance is: %u pixels", deltaPixelX);
 
 
     cvShowImage("Original image with target",frame);
