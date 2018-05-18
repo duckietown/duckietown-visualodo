@@ -55,67 +55,16 @@ Reference:
 
 int main ()
 {
-    //******************************************************************************************
-    // EXAMPLE OF HOW TO USE CAMERA:
-    // TEST CAMERA
-    /*
-     capture = cvCaptureFromCAM(3);
-     cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,840);
-     cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,840);
-     if (!capture)
-     {
-     printf("Could not initialize capturing...\n");
-     return -1;
-     }
-     usleep(10);
-     // Create image windows
-     cvNamedWindow("Original image with target", CV_WINDOW_AUTOSIZE);
-     while(1)
-     {
-     // Grab the new frame from the camera. "frame" variable can later be used in ColorTracking() function
-     frame = cvQueryFrame(capture);
-     frame = cvQueryFrame(capture);
-     frame = cvQueryFrame(capture);
-     frame = cvQueryFrame(capture);
-     frame = cvQueryFrame(capture);
-     frame = cvQueryFrame(capture);
-     usleep(10);
-     if (!frame)
-     {
-     printf("Could not grab frame\n");
-     return -1;
-     }
-     cvShowImage("Original image with target",frame);
-     int c = cvWaitKey(10); // you need this after showing an image
-     if (c != -1)
-     break;
-     usleep(10);
-     }
-     cvReleaseCapture(&capture);
-     */
-     //
-    //******************************************************************************************
-
-
 
     // YOUR CODE BEGINS HERE:
 
     // initialize your parameters
     int choice; //parameter to pass user choice
     int fd; //the serial port
-    int hmin = 0;
-  	int hmax = 255;
-  	int smin = 0;
-  	int smax = 255;
-  	int vmin = 0;
-  	int vmax = 200;
-  	int positionXinitial;
-  	int positionYinitial;
-  	int positionXfinal;
-  	int positionYfinal;
+
+  	int positionX;
+  	int positionY;
     int deltaPixelX = 0;
-	CvCapture* capture;
-	IplImage* frame;
 
 
 
@@ -123,7 +72,7 @@ int main ()
   fd = serialport_init("/dev/ttymxc3", 115200);
 	// prompt user to select a certain task
   printf("Please choose a task to be performed: \n");
-  printf("Press 4\n");
+  printf("4: calibrate\n");
   scanf("%d", &choice);
 
 
@@ -132,49 +81,48 @@ int main ()
     ////////////////////////////////////
     // Task 4: move the stage in a direction with a specified distance and track the position to calibrate the camera.
     if (choice == 4){
-    capture = cvCaptureFromCAM(3);
-    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,840);
-    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,840);
-    if (!capture)
-    {
-    printf("Could not initialize capturing...\n");
-    return -1;
+
+      CvCapture*capture = cvCaptureFromCAM(3);
+      cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,840);
+      cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,840);
+      if (!capture)
+      {
+      printf("Could not initialize capturing...\n");
+      return -1;
+      }
+      usleep(10);
+
+      int positionXinitial;
+    	int positionYinitial;
+      int moved;
+      float pixel2mm = 0;
+      int dir = 1;
+      for(int i = 0; i<10;i++){
+        GetCoordinates(capture, &positionX, &positionY);
+        positionXinitial = positionX;
+        positionYinitial = positionY;
+
+        while(1){
+          direction *= -1;
+
+          moved = MoveMotor(fd, dir, 1);
+          printf("Moved: %i\n\n", moved);
+
+          if (moved == 0){
+            GetCoordinates(capture, &positionX , &positionY);
+  					pixel2mm += sqrt( (pow((positionX-positionXinitial),2))
+                                + (pow((positionY-positionYinitial),2))
+                            );
+  					break;
+          }
+        }
+      }
+
+      pixel2mm = abs(pixel2mm)/10;
+
+      printf("The relation pixel to mm is: %f\n", pixel2mm);
+
     }
-    usleep(10);
-    // Create image windows
-    cvNamedWindow("Original image with target", CV_WINDOW_AUTOSIZE);
-    while(1)
-    {
-    // Grab the new frame from the camera. "frame" variable can later be used in ColorTracking() function
-    frame = cvQueryFrame(capture);
-    usleep(10);
-    if (!frame)
-    {
-    printf("Could not grab frame\n");
-    return -1;
-    }
-
-    //ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
-		ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
-
-    MoveMotor(5,1,1);
-
-    ColorTracking(frame, &positionXfinal, &positionYfinal, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
-
-    deltaPixelX = positionXfinal- positionXinitial;
-
-    printf("The travelled distance is: %u pixels", deltaPixelX);
-
-
-    cvShowImage("Original image with target",frame);
-    int c = cvWaitKey(10); // you need this after showing an image
-    if (c != -1)
-    break;
-    usleep(10);
-    }
-    cvReleaseImage(&frame);
-    cvReleaseCapture(&capture);
-  }
 
     //---------------------------------------------------------------------------
 
