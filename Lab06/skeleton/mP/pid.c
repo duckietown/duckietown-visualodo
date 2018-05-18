@@ -181,8 +181,7 @@ int ColorTracking (IplImage* img, int* positionX , int* positionY)
       free(moments_y);
       cvReleaseImage(&imgHSV);
       cvReleaseImage(&imgThresh);
-      
-
+	cvReleaseImage(&imgWithCross);
       return 0;
 }
 
@@ -225,8 +224,10 @@ int MoveMotor (int fd, float distance, int motor)
     if (motor != 1 && motor != 2) return -1;
     if (abs(distance) > 5 ) return -1;
 	// Create appropriate 5 byte command and write it to the serial port
-    steps = distance / 5 *999;
-    constructCommand(cmd, steps, motor);
+    steps = distance /0.005;
+    constructCommand(cmd, (int)steps, motor);
+    printf("Command is: %c %c %c %c %c", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4]);
+    
     write_check = serialport_write (fd, cmd);
     if (write_check!=0){
       printf("Could not write\n");
@@ -235,7 +236,7 @@ int MoveMotor (int fd, float distance, int motor)
     // serialport_read_until(fd, buff, '\0', 1, 10) until you get a response
     while(!response){
       usleep(10);
-      serialport_read_until(fd, &buffer, '\0', 1, 10);
+      response = serialport_read_until(fd, &buffer, '\0', 1, 10);
     }
 
     if (buffer != '0'){
@@ -299,11 +300,11 @@ int MoveMotorRectangular (int fd, float distance, int steps, int useVision, int 
       }
 
       //ColorTrackingSetColors(frame, &hmax, &hmin, &smax, &smin, &vmax, &vmin);
-  		ColorTracking(frame, &positionXinitial , &positionYinitial, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+  	  ColorTracking(frame, &positionXinitial , &positionYinitial);
 
       MoveMotor(5,1,1);
 
-      ColorTracking(frame, &positionXfinal, &positionYfinal, cvScalar(hmin, smin, vmin), cvScalar( hmax, smax, vmax));
+      ColorTracking(frame, &positionXfinal, &positionYfinal);
 
 
       cvShowImage("Original image with target",frame);
@@ -378,7 +379,7 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
   frame = cvQueryFrame(capture);
 
   // Find the X and Y coordinates of an object
-  ColorTracking(frame, &positionX , &positionY, min, max);
+  ColorTracking(frame, &positionX , &positionY);
 
 	// Get current time and initial error
   gettimeofday(&currentTime, NULL);
@@ -426,7 +427,7 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
       frame = cvQueryFrame(capture);
 
   		// Determine the new position
-      ColorTracking(frame, &positionX , &positionY, min, max);
+      ColorTracking(frame, &positionX , &positionY);
   		// Save the new position as current position
       //NOTE isn't it automatically done?
   		// Get current time and update the error
@@ -451,7 +452,7 @@ int PID (int fd, int targetPositionX, int targetPositionY, CvCapture* capture)
 int GetCoordinates (CvCapture* capture, int*currentX, int* currentY){
   IplImage* frame = 0;
   // Create image windows
-  cvNamedWindow("Original image with targer", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow("Original image with target", CV_WINDOW_AUTOSIZE);
   cvNamedWindow("CrossImg", CV_WINDOW_AUTOSIZE);
   // Grab the new frame from the camera. "frame" variable can later be used in ColorTracking() function
   frame = cvQueryFrame(capture);
@@ -465,6 +466,7 @@ int GetCoordinates (CvCapture* capture, int*currentX, int* currentY){
   printf("Could not grab frame\n");
   return -1;
   }
+  usleep(30);
   cvShowImage("Original image with target",frame);
   ColorTracking (frame, currentX , currentY);
   int c = cvWaitKey(10); // you need this after showing an image

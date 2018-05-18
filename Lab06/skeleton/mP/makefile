@@ -5,7 +5,7 @@ CFLAGS=`pkg-config --cflags opencv`
 LDFLAGS=`pkg-config --libs opencv`
 
 TARGET= lab06_test
-OBJECTS= pid.o lab06_test.o tracking.o
+OBJECTS= pid.o lab06_test.o
 
 all: clean compile link
 

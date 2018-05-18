@@ -75,7 +75,7 @@ int* positionY - y coordinate of the center of detected color (in pixels)
 Return:
 0
 */
-int ColorTracking (IplImage* img, int* positionX , int* positionY, CvScalar min, CvScalar max);
+int ColorTracking (IplImage* img, int* positionX , int* positionY);
 
 /*
 Function constructCommand creates command to be sent over serial, for the SAM3x microcontroller
@@ -106,7 +106,7 @@ Notes:
 - Check the pixel - mm relation
 */
 int MoveMotor (int fd, float distance, int motor);
-
+int GetCoordinates (CvCapture* capture, int*currentX, int* currentY);
 /*
 Function MoveMotorRectangular moves the stages in a rectangle trajectory with specified distance and
 number of steps per each rectangle side. Additionally, if camera is used, coordinates in each steps

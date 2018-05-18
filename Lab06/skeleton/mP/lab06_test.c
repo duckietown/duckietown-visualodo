@@ -93,30 +93,31 @@ int main ()
       usleep(10);
 
       int positionXinitial;
-    	int positionYinitial;
+    int positionYinitial;
       int moved;
       float pixel2mm = 0;
       int dir = 1;
-      for(int i = 0; i<10;i++){
+      for(int i = 0; i<3;i++){
         GetCoordinates(capture, &positionX, &positionY);
         positionXinitial = positionX;
         positionYinitial = positionY;
 
-        while(1){
-          direction *= -1;
+        
+          //dir *= -1;
 
           moved = MoveMotor(fd, dir, 1);
+          usleep(20);
           printf("Moved: %i\n\n", moved);
 
           if (moved == 0){
             GetCoordinates(capture, &positionX , &positionY);
-  					pixel2mm += sqrt( (pow((positionX-positionXinitial),2))
-                                + (pow((positionY-positionYinitial),2))
-                            );
-  					break;
+            pixel2mm += sqrt( (pow((positionX-positionXinitial),2)) + (pow((positionY-positionYinitial),2)));
+  			break;
           }
+          
+          if (moved == 1) dir *=-1;
         }
-      }
+      
 
       pixel2mm = abs(pixel2mm)/10;
 
@@ -125,7 +126,7 @@ int main ()
     }
 
     //---------------------------------------------------------------------------
-
+/*
     // Task 6: move the stage in a square (5 mm sidelength) and save the coordinates
     if (choice == 6){
       MoveMotorRectangular(fd, 5, 255, 1, 1 );
@@ -208,11 +209,12 @@ int main ()
 
 
     //---------------------------------------------------------------------------
-
-
-    // Release captured images
-    cvReleaseImage(&frame);
+	// Release captured images
+	cvReleaseImage(&frame);
     cvReleaseCapture(&capture);
+*/
+    
+    
 
 
     // Close the serial port
