@@ -13,15 +13,15 @@
     <group ns="$(arg veh)">
         <!-- run local -->
         <node if="$(arg local)" name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true" >
-              <group if="$(arg params_implemented)">
-                <rosparam command="load" file="$(find duckietown)/config/$(arg config)/$(arg pkg_name)/$(arg node_name)/$(arg param_file_name).yaml"/>
-              </group>
+          <group if="$(arg params_implemented)">
+            <rosparam command="load" file="$(find duckietown-$(arg pkg_name))/lib-$(arg pkg_name)/src/duckietown_$(arg pkg_name)/data/$(arg node_name)/$(arg param_file_name).yaml"/>
+          </group>
         </node>
 
         <!-- run remote -->
         <node unless="$(arg local)" machine="$(arg veh)" name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true">
-          <group unless="$(arg params_implemented)">
-            <rosparam command="load" file="$(find duckietown)/config/$(arg config)/$(arg pkg_name)/$(arg node_name)/$(arg param_file_name).yaml"/>
+          <group if="$(arg params_implemented)">
+            <rosparam command="load" file="$(find duckietown-$(arg pkg_name))/lib-$(arg pkg_name)/src/duckietown_$(arg pkg_name)/data/$(arg node_name)/$(arg param_file_name).yaml"/>
           </group>
         </node>
     </group>
