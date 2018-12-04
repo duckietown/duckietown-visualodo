@@ -1,0 +1,3 @@
+[console_scripts]
+dt-visualodo-cli = duckietown_visualodo.cli:cli_main
+

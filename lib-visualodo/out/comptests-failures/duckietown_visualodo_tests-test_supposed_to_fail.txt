@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/gianmarco/.virtualenvsexport/duckietown-visualodo-6VGsud4I/lib/python2.7/site-packages/comptests/registrar.py", line 84, in check_fails
+    f(*args, **kwargs)
+  File "/Users/gianmarco/Documents/Duckietown/duckietown-visualodo/lib-visualodo/src/duckietown_visualodo_tests/test1.py", line 19, in test_supposed_to_fail
+    raise Exception()
+Exception

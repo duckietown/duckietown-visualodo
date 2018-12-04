@@ -1,0 +1,658 @@
+add_targets()
+ -         targets: ['_dynreports_create_index', 'duckietown_visualodo_tests-_dynreports_getres']
+computed todo
+ -       not_ready: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests']
+ -      ready_todo: ['duckietown_visualodo_tests-context']
+ -    targets_done: []
+ - targets_todo_plus_deps: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+targets_todo_plus_deps: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+add_targets():adding to todo
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests']
+ -        todo_add: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests']
+add_targets():adding to ready
+ -           ready: []
+ -       ready_add: ['duckietown_visualodo_tests-context']
+after add_targets()
+ -            done: []
+ -      processing: []
+ -      ready_todo: ['duckietown_visualodo_tests-context']
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests']
+0: -  all_targets: 6
+0: -      blocked: 0
+0: -      deleted: 0
+0: -         done: 0
+0: -       failed: 0
+0: -   processing: 0
+0: -        ready: 1
+0: -         todo: 5
+0: 
+0:  In more details:
+0: -  all_targets: 6 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+0: -      blocked: -
+0: -      deleted: -
+0: -         done: -
+0: -       failed: -
+0: -   processing: -
+0: -        ready: 1 ['duckietown_visualodo_tests-context']
+0: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-context
+start_job
+ -          job_id: duckietown_visualodo_tests-context
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-context
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-context
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-comptests']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-context
+ -     opportunity: duckietown_visualodo_tests-comptests
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-comptests
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-context
+ -        new_jobs: []
+ - user_object_deps: []
+1: -  all_targets: 6
+1: -      blocked: 0
+1: -      deleted: 0
+1: -         done: 1
+1: -       failed: 0
+1: -   processing: 0
+1: -        ready: 1
+1: -         todo: 4
+1: 
+1:  In more details:
+1: -  all_targets: 6 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+1: -      blocked: -
+1: -      deleted: -
+1: -         done: 1 ['duckietown_visualodo_tests-context']
+1: -       failed: -
+1: -   processing: -
+1: -        ready: 1 ['duckietown_visualodo_tests-comptests']
+1: -         todo: 4 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-comptests
+start_job
+ -          job_id: duckietown_visualodo_tests-comptests
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-comptests
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-comptests
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-comptests
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-comptests
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-comptests
+ -        new_jobs: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+ - user_object_deps: ['duckietown_visualodo_tests-_dynreports_merge']
+updating dep
+ -               d: duckietown_visualodo_tests-_dynreports_merge
+ -          job_id: duckietown_visualodo_tests-comptests
+ -          parent: duckietown_visualodo_tests-_dynreports_getres
+updating dep
+ -               d: duckietown_visualodo_tests-_dynreports_merge
+ -          job_id: duckietown_visualodo_tests-comptests
+ -          parent: duckietown_visualodo_tests-_dynreports_getbra
+rescheduling parent
+ -          job_id: duckietown_visualodo_tests-comptests
+ -          parent: duckietown_visualodo_tests-_dynreports_getres
+add_targets()
+ -         targets: ['duckietown_visualodo_tests-_dynreports_getres']
+computed todo
+ -       not_ready: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -      ready_todo: ['duckietown_visualodo_tests-context-0']
+ -    targets_done: ['duckietown_visualodo_tests-comptests']
+ - targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets():adding to todo
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -        todo_add: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets():adding to ready
+ -           ready: ['duckietown_visualodo_tests-_dynreports_getbra']
+ -       ready_add: ['duckietown_visualodo_tests-context-0']
+after add_targets()
+ -            done: ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+ -      processing: []
+ -      ready_todo: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-context-0']
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+rescheduling parent
+ -          job_id: duckietown_visualodo_tests-comptests
+ -          parent: duckietown_visualodo_tests-_dynreports_getbra
+add_targets()
+ -         targets: ['duckietown_visualodo_tests-_dynreports_getbra']
+computed todo
+ -       not_ready: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -      ready_todo: ['duckietown_visualodo_tests-context-0']
+ -    targets_done: ['duckietown_visualodo_tests-comptests']
+ - targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets():adding to todo
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -        todo_add: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets():adding to ready
+ -           ready: ['duckietown_visualodo_tests-context-0']
+ -       ready_add: ['duckietown_visualodo_tests-context-0']
+after add_targets()
+ -            done: ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+ -      processing: []
+ -      ready_todo: ['duckietown_visualodo_tests-context-0']
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets()
+ -         targets: ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+computed todo
+ -       not_ready: ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -      ready_todo: ['duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+ -    targets_done: []
+ - targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+targets_todo_plus_deps: ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+add_targets():adding to todo
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+ -        todo_add: ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+add_targets():adding to ready
+ -           ready: ['duckietown_visualodo_tests-context-0']
+ -       ready_add: ['duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+after add_targets()
+ -            done: ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+ -      processing: []
+ -      ready_todo: ['duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+ -            todo: ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+2: -  all_targets: 15
+2: -      blocked: 0
+2: -      deleted: 0
+2: -         done: 2
+2: -       failed: 0
+2: -   processing: 0
+2: -        ready: 5
+2: -         todo: 8
+2: 
+2:  In more details:
+2: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+2: -      blocked: -
+2: -      deleted: -
+2: -         done: 2 ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context']
+2: -       failed: -
+2: -   processing: -
+2: -        ready: 5 ['duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+2: -         todo: 8 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-context-0
+start_job
+ -          job_id: duckietown_visualodo_tests-context-0
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-context-0
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-context-0
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-duckietown_visualodo_tests']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-context-0
+ -     opportunity: duckietown_visualodo_tests-duckietown_visualodo_tests
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-duckietown_visualodo_tests
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-context-0
+ -        new_jobs: []
+ - user_object_deps: []
+3: -  all_targets: 15
+3: -      blocked: 0
+3: -      deleted: 0
+3: -         done: 3
+3: -       failed: 0
+3: -   processing: 0
+3: -        ready: 5
+3: -         todo: 7
+3: 
+3:  In more details:
+3: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+3: -      blocked: -
+3: -      deleted: -
+3: -         done: 3 ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0']
+3: -       failed: -
+3: -   processing: -
+3: -        ready: 5 ['duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+3: -         todo: 7 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+start_job
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra-2
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra-2
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres-2
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres-2
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-duckietown_visualodo_tests
+ -        new_jobs: []
+ - user_object_deps: []
+4: -  all_targets: 15
+4: -      blocked: 0
+4: -      deleted: 0
+4: -         done: 4
+4: -       failed: 0
+4: -   processing: 0
+4: -        ready: 6
+4: -         todo: 5
+4: 
+4:  In more details:
+4: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+4: -      blocked: -
+4: -      deleted: -
+4: -         done: 4 ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests']
+4: -       failed: -
+4: -   processing: -
+4: -        ready: 6 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+4: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-test_sum1
+start_job
+ -          job_id: duckietown_visualodo_tests-test_sum1
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-test_sum1
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-test_sum1
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-test_sum1
+ -        new_jobs: []
+ - user_object_deps: []
+5: -  all_targets: 15
+5: -      blocked: 0
+5: -      deleted: 0
+5: -         done: 5
+5: -       failed: 0
+5: -   processing: 0
+5: -        ready: 5
+5: -         todo: 5
+5: 
+5:  In more details:
+5: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+5: -      blocked: -
+5: -      deleted: -
+5: -         done: 5 ['duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_sum1']
+5: -       failed: -
+5: -   processing: -
+5: -        ready: 5 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+5: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres-2
+start_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres-2
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres-2
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres-2
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres-2
+ -        new_jobs: []
+ - user_object_deps: []
+6: -  all_targets: 15
+6: -      blocked: 0
+6: -      deleted: 0
+6: -         done: 6
+6: -       failed: 0
+6: -   processing: 0
+6: -        ready: 4
+6: -         todo: 5
+6: 
+6:  In more details:
+6: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+6: -      blocked: -
+6: -      deleted: -
+6: -         done: 6 ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_sum1']
+6: -       failed: -
+6: -   processing: -
+6: -        ready: 4 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+6: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-test_foo
+start_job
+ -          job_id: duckietown_visualodo_tests-test_foo
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-test_foo
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-test_foo
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-test_foo
+ -        new_jobs: []
+ - user_object_deps: []
+7: -  all_targets: 15
+7: -      blocked: 0
+7: -      deleted: 0
+7: -         done: 7
+7: -       failed: 0
+7: -   processing: 0
+7: -        ready: 3
+7: -         todo: 5
+7: 
+7:  In more details:
+7: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+7: -      blocked: -
+7: -      deleted: -
+7: -         done: 7 ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1']
+7: -       failed: -
+7: -   processing: -
+7: -        ready: 3 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+7: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-test_sum2
+start_job
+ -          job_id: duckietown_visualodo_tests-test_sum2
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-test_sum2
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-test_sum2
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-test_sum2
+ -        new_jobs: []
+ - user_object_deps: []
+8: -  all_targets: 15
+8: -      blocked: 0
+8: -      deleted: 0
+8: -         done: 8
+8: -       failed: 0
+8: -   processing: 0
+8: -        ready: 2
+8: -         todo: 5
+8: 
+8:  In more details:
+8: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+8: -      blocked: -
+8: -      deleted: -
+8: -         done: 8 ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2']
+8: -       failed: -
+8: -   processing: -
+8: -        ready: 2 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+8: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-test_supposed_to_fail
+start_job
+ -          job_id: duckietown_visualodo_tests-test_supposed_to_fail
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-test_supposed_to_fail
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-test_supposed_to_fail
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-test_supposed_to_fail
+ -        new_jobs: []
+ - user_object_deps: []
+9: -  all_targets: 15
+9: -      blocked: 0
+9: -      deleted: 0
+9: -         done: 9
+9: -       failed: 0
+9: -   processing: 0
+9: -        ready: 1
+9: -         todo: 5
+9: 
+9:  In more details:
+9: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+9: -      blocked: -
+9: -      deleted: -
+9: -         done: 9 ['duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+9: -       failed: -
+9: -   processing: -
+9: -        ready: 1 ['duckietown_visualodo_tests-_dynreports_getbra-2']
+9: -         todo: 5 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+start_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-_dynreports_merge']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+ -     opportunity: duckietown_visualodo_tests-_dynreports_merge
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_merge
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra-2
+ -        new_jobs: []
+ - user_object_deps: []
+10: -  all_targets: 15
+10: -      blocked: 0
+10: -      deleted: 0
+10: -         done: 10
+10: -       failed: 0
+10: -   processing: 0
+10: -        ready: 1
+10: -         todo: 4
+10: 
+10:  In more details:
+10: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+10: -      blocked: -
+10: -      deleted: -
+10: -         done: 10 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+10: -       failed: -
+10: -   processing: -
+10: -        ready: 1 ['duckietown_visualodo_tests-_dynreports_merge']
+10: -         todo: 4 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+start_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+considering parents
+ -    parents_todo: ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getres
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra
+parent is ready
+ -     opportunity: duckietown_visualodo_tests-_dynreports_getbra
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-_dynreports_merge
+ -        new_jobs: []
+ - user_object_deps: []
+11: -  all_targets: 15
+11: -      blocked: 0
+11: -      deleted: 0
+11: -         done: 11
+11: -       failed: 0
+11: -   processing: 0
+11: -        ready: 2
+11: -         todo: 2
+11: 
+11:  In more details:
+11: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+11: -      blocked: -
+11: -      deleted: -
+11: -         done: 11 ['duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+11: -       failed: -
+11: -   processing: -
+11: -        ready: 2 ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getres']
+11: -         todo: 2 ['_dynreports_create_index', '_dynreports_merge']
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+start_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+considering parents
+ -    parents_todo: ['_dynreports_merge']
+considering opportuniny
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+ -     opportunity: _dynreports_merge
+parent is ready
+ -     opportunity: _dynreports_merge
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-_dynreports_getbra
+ -        new_jobs: []
+ - user_object_deps: []
+12: -  all_targets: 15
+12: -      blocked: 0
+12: -      deleted: 0
+12: -         done: 12
+12: -       failed: 0
+12: -   processing: 0
+12: -        ready: 2
+12: -         todo: 1
+12: 
+12:  In more details:
+12: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+12: -      blocked: -
+12: -      deleted: -
+12: -         done: 12 ['duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+12: -       failed: -
+12: -   processing: -
+12: -        ready: 2 ['_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getres']
+12: -         todo: 1 ['_dynreports_create_index']
+chosen next_job
+ -          job_id: _dynreports_merge
+start_job
+ -          job_id: _dynreports_merge
+check_job_finished
+ -          job_id: _dynreports_merge
+job_succeeded
+ -          job_id: _dynreports_merge
+considering parents
+ -    parents_todo: ['_dynreports_create_index']
+considering opportuniny
+ -          job_id: _dynreports_merge
+ -     opportunity: _dynreports_create_index
+parent is ready
+ -     opportunity: _dynreports_create_index
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: _dynreports_merge
+ -        new_jobs: []
+ - user_object_deps: []
+13: -  all_targets: 15
+13: -      blocked: 0
+13: -      deleted: 0
+13: -         done: 13
+13: -       failed: 0
+13: -   processing: 0
+13: -        ready: 2
+13: -         todo: 0
+13: 
+13:  In more details:
+13: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+13: -      blocked: -
+13: -      deleted: -
+13: -         done: 13 ['_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+13: -       failed: -
+13: -   processing: -
+13: -        ready: 2 ['_dynreports_create_index', 'duckietown_visualodo_tests-_dynreports_getres']
+13: -         todo: -
+chosen next_job
+ -          job_id: _dynreports_create_index
+start_job
+ -          job_id: _dynreports_create_index
+check_job_finished
+ -          job_id: _dynreports_create_index
+job_succeeded
+ -          job_id: _dynreports_create_index
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: _dynreports_create_index
+ -        new_jobs: []
+ - user_object_deps: []
+14: -  all_targets: 15
+14: -      blocked: 0
+14: -      deleted: 0
+14: -         done: 14
+14: -       failed: 0
+14: -   processing: 0
+14: -        ready: 1
+14: -         todo: 0
+14: 
+14:  In more details:
+14: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+14: -      blocked: -
+14: -      deleted: -
+14: -         done: 14 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+14: -       failed: -
+14: -   processing: -
+14: -        ready: 1 ['duckietown_visualodo_tests-_dynreports_getres']
+14: -         todo: -
+chosen next_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres
+start_job
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres
+check_job_finished
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres
+job_succeeded
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres
+considering parents
+ -    parents_todo: []
+check_job_finished_handle_result
+ -    deleted_jobs: []
+ -          job_id: duckietown_visualodo_tests-_dynreports_getres
+ -        new_jobs: []
+ - user_object_deps: []
+ending: -  all_targets: 15
+ending: -      blocked: 0
+ending: -      deleted: 0
+ending: -         done: 15
+ending: -       failed: 0
+ending: -   processing: 0
+ending: -        ready: 0
+ending: -         todo: 0
+ending: 
+ending:  In more details:
+ending: -  all_targets: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+ending: -      blocked: -
+ending: -      deleted: -
+ending: -         done: 15 ['_dynreports_create_index', '_dynreports_merge', 'duckietown_visualodo_tests-_dynreports_getbra', 'duckietown_visualodo_tests-_dynreports_getbra-2', 'duckietown_visualodo_tests-_dynreports_getres', 'duckietown_visualodo_tests-_dynreports_getres-2', 'duckietown_visualodo_tests-_dynreports_merge', 'duckietown_visualodo_tests-comptests', 'duckietown_visualodo_tests-context', 'duckietown_visualodo_tests-context-0', 'duckietown_visualodo_tests-duckietown_visualodo_tests', 'duckietown_visualodo_tests-test_foo', 'duckietown_visualodo_tests-test_sum1', 'duckietown_visualodo_tests-test_sum2', 'duckietown_visualodo_tests-test_supposed_to_fail']
+ending: -       failed: -
+ending: -   processing: -
+ending: -        ready: -
+ending: -         todo: -

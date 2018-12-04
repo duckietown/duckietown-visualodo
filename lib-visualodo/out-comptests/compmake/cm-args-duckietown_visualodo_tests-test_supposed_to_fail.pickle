@@ -1,0 +1,17 @@
+€cquickapp.compmake_context
+wrap_state
+q]q(cconf_tools.global_config
+ConfigState
+q)q}q(U
+singletonsq}qUdirsq]q	Udefaultq
+aUmastersq}qubccomptests.registrar
+WrapTest
+q)q}q(Ufunctionqccomptests.registrar
+Wrap
+q)q}q(U__name__qUtest_supposed_to_failqU
+__module__qU duckietown_visualodo_tests.test1qUfccomptests.registrar
+check_fails
+qubhhU
+output_dirqU>out-comptests/duckietown_visualodo_tests/test_supposed_to_failubcduckietown_visualodo_tests.test1
+test_supposed_to_fail
+qe}q‡q.
