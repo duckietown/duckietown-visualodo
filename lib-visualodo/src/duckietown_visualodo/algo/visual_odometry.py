@@ -130,6 +130,33 @@ class VisualOdometry:
         end = time.time()
         rospy.logwarn("TIME: Matching done. Elapsed time: %s", end - start)
 
+        # transform image coordinates to spherical image coordinates
+
+        num_matches = len(matches)
+
+        query_matches = np.zeros(num_matches)
+        train_matches = np.zeros(num_matches)
+
+        for i in range(0, num_matches):
+            query_matches[i] = matches[i].queryIdx
+            train_matches[i] = matches[i].trainIdx
+
+        a = cv2.KeyPoint().convert(query_image.keypoints, query_matches)
+        b = np.ones((num_matches, 1))
+
+        query_keypoints_spherical = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
+                                              np.ones((num_matches, 1)), 1)
+        train_keypoints_spherical = np.append(cv2.KeyPoint().convert(train_image.keypoints, train_matches),
+                                              np.ones((num_matches, 1)), 1)
+
+        i = 1
+        # calculate theta for each pair
+
+        # histogram voting to find best theta
+
+        # find inliers
+
+        """
         # Initialize fitness trackers
         fitness = float('-inf')
         max_fit = fitness
@@ -288,7 +315,7 @@ class VisualOdometry:
 
             # t_vec = t_hypothesis[np.argmin(t_hypothesis_rmse)]
 
-            """
+            
             # Extract essential matrix
             start = time.time()
             [h_matrix, mask] = cv2.findEssentialMat(np.array(matched_train_points, dtype=float),
@@ -343,7 +370,7 @@ class VisualOdometry:
             # Calculate euler rotation from matrix, and quaternion from euler rotation
             [roll, pitch, yaw] = rotation_matrix_to_euler_angles(rot_mat)
             quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
-            """
+            
 
             # Calculate quaternion of z-mapped rotation
             [roll, pitch, yaw] = rotation_matrix_to_euler_angles(z_rot_mat)
@@ -419,3 +446,4 @@ class VisualOdometry:
             rospy.logerr(e)
             rospy.logwarn("Not enough matches for RANSAC homography")
             raise
+            """
