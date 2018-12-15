@@ -47,7 +47,7 @@ def define_parameters():
     parameters.shrink_y_ratio = 1 / 2
 
     # Publish debug images
-    parameters.plot_matches = False
+    parameters.plot_matches = True
     parameters.plot_histogram_filtering = False
 
     # Knn weight ratio exploration. Relates how bigger must the first match be wrt the second to be considered a match

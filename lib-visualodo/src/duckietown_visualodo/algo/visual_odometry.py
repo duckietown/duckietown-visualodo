@@ -286,7 +286,7 @@ class VisualOdometry:
                     match_distance_filter.close_query_points, (n_proximal_matches, 2))
                 t_hypothesis_rmse[hypothesis_index] = np.sum(np.sqrt(np.sum(np.power(error, 2), axis=1)))
 
-            t_vec = t_hypothesis[np.argmin(t_hypothesis_rmse)]
+            # t_vec = t_hypothesis[np.argmin(t_hypothesis_rmse)]
 
             """
             # Extract essential matrix
