@@ -1,0 +1,22 @@
+description: >
+  The parameters used in Fall 2019.
+
+#constructor: visual_odometry.VisualOdometry
+
+parameters:
+  threshold_angle: 1.5
+  threshold_length: 1.5
+
+
+  shrink_x_ratio: 0.5
+  shrink_y_ratio: 0.5
+
+  plot_matches: True
+  plot_histogram_filtering: False
+
+  feature_extractor: 'ORB'
+  matcher: 'BF'
+  knn_neighbors: 2
+  filter_by_histogram: True
+
+  knn_weight: [1.4]
