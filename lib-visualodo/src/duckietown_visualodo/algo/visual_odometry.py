@@ -148,6 +148,16 @@ class VisualOdometry:
         p1 = train_keypoints / np.linalg.norm(train_keypoints, axis=1)[:, None]
         p2 = query_keypoints / np.linalg.norm(query_keypoints, axis=1)[:,None]
 
+
+
+        # transform to front facing camera coordinates
+        alpha = np.deg2rad(-15)
+        R = np.array([(1, 0, 0), (0, np.cos(alpha), -np.sin(alpha)), (0, np.sin(alpha), np.cos(alpha))])
+        R = np.matmul(np.array([(0, 0, 1), (-1, 0, 0), (0, -1, 0)]), R)
+
+        p1 = np.matmul(p1, np.transpose(R))
+        p2 = np.matmul(p2, np.transpose(R))
+
         # calculate theta for each pair
         theta = -2 * np.arctan2((p2[:, 1] * p1[:, 2] - p2[:, 2] * p1[:, 1]), (p2[:, 0] * p1[:, 2] + p2[:, 2] * p1[:, 0]))
 
