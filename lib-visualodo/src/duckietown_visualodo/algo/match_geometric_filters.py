@@ -108,10 +108,17 @@ class DistanceFilter:
         self.camera_K = camera_K
         self.image_shape = image_shape
 
+        self.norm_close_query_points = []
+        self.norm_close_train_points = []
+        self.norm_distant_query_points = []
+        self.norm_distant_train_points = []
+
         self.close_query_points = []
         self.close_train_points = []
         self.distant_query_points = []
         self.distant_train_points = []
+
+        self.proximity_mask = []
 
     def split_by_distance(self, proximity_mask):
         """
@@ -124,6 +131,8 @@ class DistanceFilter:
 
         assert proximity_mask.shape[0:2] == self.image_shape
 
+        self.proximity_mask = proximity_mask
+
         # Get far/close-region matches
         for query_point, train_point in zip(self.query_points, self.train_points):
 
@@ -135,10 +144,19 @@ class DistanceFilter:
                     not proximity_mask[int(train_point[1]), int(train_point[0])]:
                 # self.distant_query_points.append(np.matmul(np.linalg.inv(self.camera_K), query_point)[0:2])
                 # self.distant_train_points.append(np.matmul(np.linalg.inv(self.camera_K), train_point)[0:2])
-                self.distant_query_points.append(query_point[0:2] * [1 / self.image_shape[1], 1 / self.image_shape[0]])
-                self.distant_train_points.append(train_point[0:2] * [1 / self.image_shape[1], 1 / self.image_shape[0]])
+                self.distant_query_points.append(query_point[0:2])
+                self.distant_train_points.append(train_point[0:2])
+
             else:
-                self.close_query_points.append(query_point[0:2] * [1 / self.image_shape[1], 1 / self.image_shape[0]])
-                self.close_train_points.append(train_point[0:2] * [1 / self.image_shape[1], 1 / self.image_shape[0]])
+                self.close_query_points.append(query_point[0:2])
+                self.close_train_points.append(train_point[0:2])
+
                 # proximal_query_matches.append(np.matmul(np.linalg.inv(self.camera_K), query_point)[0:2])
                 # proximal_train_matches.append(np.matmul(np.linalg.inv(self.camera_K), train_point)[0:2])
+
+        normalization_vec = [[1 / self.image_shape[1], 0], [0, 1 / self.image_shape[0]]]
+
+        self.norm_distant_query_points = np.matmul(self.distant_query_points, normalization_vec)
+        self.norm_distant_train_points = np.matmul(self.distant_train_points, normalization_vec)
+        self.norm_close_query_points = np.matmul(self.close_query_points, normalization_vec)
+        self.norm_close_train_points = np.matmul(self.close_train_points, normalization_vec)
