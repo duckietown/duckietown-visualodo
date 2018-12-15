@@ -189,3 +189,24 @@ class DataPlotter:
             img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, **draw_params)
 
             self.ransac_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))
+
+    def plot_theta_histogram(self, theta):
+
+        fig = Figure()
+        canvas = FigureCanvas(figure=fig)
+        ax = fig.gca()
+
+        ax.hist(theta, bins=100, range=(-0.5, 0.5))
+
+        # Render plot as RGB image
+        canvas.draw()
+        img3 = np.fromstring(canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        img3 = img3.reshape(canvas.get_width_height()[::-1] + (3,))
+        subplot_bb = np.round(ax.bbox.extents)
+        img3 = img3[int(subplot_bb[1]):int(subplot_bb[3]), int(subplot_bb[0]):int(subplot_bb[2])]
+
+        # plt.figure()
+        # plt.imshow(img3)
+        # plt.show()
+
+        self.match_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))

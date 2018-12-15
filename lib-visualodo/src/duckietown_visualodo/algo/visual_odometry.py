@@ -131,7 +131,6 @@ class VisualOdometry:
         rospy.logwarn("TIME: Matching done. Elapsed time: %s", end - start)
 
         # transform image coordinates to spherical image coordinates
-
         num_matches = len(matches)
 
         query_matches = np.zeros(num_matches)
@@ -141,18 +140,22 @@ class VisualOdometry:
             query_matches[i] = matches[i].queryIdx
             train_matches[i] = matches[i].trainIdx
 
-        query_keypoints = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
-                                              np.ones((num_matches, 1)), 1)
         train_keypoints = np.append(cv2.KeyPoint().convert(train_image.keypoints, train_matches),
                                               np.ones((num_matches, 1)), 1)
+        query_keypoints = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
+                                              np.ones((num_matches, 1)), 1)
 
-        query_keypoints_spherical = query_keypoints / np.linalg.norm(query_keypoints, axis=1)[:,None]
-        train_keypoints_spherical = train_keypoints / np.linalg.norm(train_keypoints, axis=1)[:,None]
+        p1 = train_keypoints / np.linalg.norm(train_keypoints, axis=1)[:, None]
+        p2 = query_keypoints / np.linalg.norm(query_keypoints, axis=1)[:,None]
 
-        i = 1
         # calculate theta for each pair
+        theta = -2 * np.arctan2((p2[:, 1] * p1[:, 2] - p2[:, 2] * p1[:, 1]), (p2[:, 0] * p1[:, 2] + p2[:, 2] * p1[:, 0]))
 
         # histogram voting to find best theta
+
+        theta_best = np.median(theta)
+
+        # processed_data_plotter.plot_theta_histogram(theta)
 
         # find inliers
 
@@ -271,6 +274,9 @@ class VisualOdometry:
 
             # TODO: make the scaling adjustable from the features
             theta = rot_hypothesis[np.argmin(rot_hypothesis_rmse)]
+            """
+        try:
+            theta = theta_best
             y_rot_mat = np.array([[np.cos(theta), 0, np.sin(theta)],
                                   [0, 1, 0],
                                   [-np.sin(theta), 0, np.cos(theta)]])
@@ -280,6 +286,7 @@ class VisualOdometry:
 
             t_vec = [self.joy_command.v / 30.0, 0, 0]
 
+            """
             n_proximal_matches = n_final_matches - n_distant_matches
             t_hypothesis = []
 
@@ -314,7 +321,7 @@ class VisualOdometry:
                 t_hypothesis_rmse[hypothesis_index] = np.sum(np.sqrt(np.sum(np.power(error, 2), axis=1)))
 
             # t_vec = t_hypothesis[np.argmin(t_hypothesis_rmse)]
-
+            
             
             # Extract essential matrix
             start = time.time()
@@ -367,10 +374,13 @@ class VisualOdometry:
                                  [np.sin(rot_mag), np.cos(rot_mag), 0],
                                  [0, 0, 1]])
 
+
+        
             # Calculate euler rotation from matrix, and quaternion from euler rotation
             [roll, pitch, yaw] = rotation_matrix_to_euler_angles(rot_mat)
             quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
             
+            """
 
             # Calculate quaternion of z-mapped rotation
             [roll, pitch, yaw] = rotation_matrix_to_euler_angles(z_rot_mat)
@@ -435,7 +445,7 @@ class VisualOdometry:
             # publish the messages
             self.odom_publisher.publish(odom)
             self.path_publisher.publish(self.path)
-
+            
             end = time.time()
             rospy.logwarn("TIME: RANSAC homography done. Elapsed time: %s", end - start)
 
@@ -446,4 +456,3 @@ class VisualOdometry:
             rospy.logerr(e)
             rospy.logwarn("Not enough matches for RANSAC homography")
             raise
-            """
