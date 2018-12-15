@@ -1,5 +1,5 @@
 <package>
-  <name>duckietown_intnav</name>
+  <name>duckietown_visualodo</name>
   <version>0.0.1</version>
   <description>
     A pipeline for monocular visual odometry.
