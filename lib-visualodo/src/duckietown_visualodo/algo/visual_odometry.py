@@ -141,13 +141,13 @@ class VisualOdometry:
             query_matches[i] = matches[i].queryIdx
             train_matches[i] = matches[i].trainIdx
 
-        a = cv2.KeyPoint().convert(query_image.keypoints, query_matches)
-        b = np.ones((num_matches, 1))
+        query_keypoints = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
+                                              np.ones((num_matches, 1)), 1)
+        train_keypoints = np.append(cv2.KeyPoint().convert(train_image.keypoints, train_matches),
+                                              np.ones((num_matches, 1)), 1)
 
-        query_keypoints_spherical = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
-                                              np.ones((num_matches, 1)), 1)
-        train_keypoints_spherical = np.append(cv2.KeyPoint().convert(train_image.keypoints, train_matches),
-                                              np.ones((num_matches, 1)), 1)
+        query_keypoints_spherical = query_keypoints / np.linalg.norm(query_keypoints, axis=1)[:,None]
+        train_keypoints_spherical = train_keypoints / np.linalg.norm(train_keypoints, axis=1)[:,None]
 
         i = 1
         # calculate theta for each pair
