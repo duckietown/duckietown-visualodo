@@ -175,6 +175,20 @@ def qv_multiply(q1, v1):
 
 
 def create_circular_mask(h, w, center=None, radius=None):
+    """
+    Creates a boolean mask of sizes hxw with a circle described by its center and radius
+
+    :param h: height of mask
+    :type h: float
+    :param w: width of mask
+    :type w: float
+    :param center: center of circle
+    :type center: (2,) tuple
+    :param radius: radius of circle
+    :type radius: float
+    :return: A boolean mask containing a circle of 'True' values described by its center and radius
+    :rtype: boolean ndarray (wxh)
+    """
 
     if center is None:
         # use the middle of the image
@@ -188,3 +202,13 @@ def create_circular_mask(h, w, center=None, radius=None):
 
     mask = dist_from_center <= radius
     return mask
+
+
+def create_exponential_mask(h, w, center):
+
+    Y, X = np.ogrid[h:0:-1, :w]
+
+    coeffs = [3 * w / (5 * h ** 2), -w / (10 * h), 0]
+
+    Y = np.expand_dims(np.matmul(np.concatenate((Y ** 2, Y, np.ones((int(h), 1))), axis=1), coeffs), axis=1)
+    return abs(X - center[0]) - Y >= 2

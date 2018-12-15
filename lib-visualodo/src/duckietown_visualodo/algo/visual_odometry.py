@@ -14,7 +14,8 @@ from cv_bridge import CvBridge
 
 from data_plotter import DataPlotter
 from match_geometric_filters import HistogramLogicFilter, DistanceFilter
-from utils import knn_match_filter, rotation_matrix_to_euler_angles, qv_multiply, create_circular_mask
+from utils import knn_match_filter, rotation_matrix_to_euler_angles, qv_multiply, create_circular_mask, \
+    create_exponential_mask
 from image_manager import ImageManager
 
 from geometry_msgs.msg import Vector3, Quaternion, Pose, TransformStamped, Twist, PoseStamped
@@ -199,10 +200,13 @@ class VisualOdometry:
             proximity_r = \
                 (((mask_params[0] - mask_params[1]) * h) ** 2 + (0.5 * w) ** 2) / (
                     -2 * (mask_params[0] - mask_params[1]) * h)
-            proximity_mask = create_circular_mask(h, w, center=(w / 2, (1 - mask_params[1]) * h + proximity_r),
-                                                  radius=proximity_r)
-            proximity_mask_2 = create_circular_mask(h, w, center=(w / 2, (1 - mask_params[1]) * h),
-                                                    radius=mask_params[2] * w)
+            proximity_mask = create_circular_mask(
+                h, w, center=(w / 2, (1 - mask_params[1]) * h + proximity_r), radius=proximity_r)
+            proximity_mask_2 = create_exponential_mask(h, w, (w/2, 0))
+            proximity_mask = ~(~proximity_mask + ~proximity_mask_2)
+
+            proximity_mask_2 = create_circular_mask(
+                h, w, center=(w / 2, (1 - mask_params[1]) * h), radius=mask_params[2] * w)
             proximity_mask = ~proximity_mask_2 + proximity_mask
 
             match_distance_filter = DistanceFilter(matched_query_points, matched_train_points, self.camera_K, (h, w))

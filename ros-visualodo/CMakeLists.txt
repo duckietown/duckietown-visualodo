@@ -4,6 +4,8 @@ project(duckietown_visualodo)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  duckietown
+  std_msgs
   duckietown_msgs # Every duckietown packages should use this.
   cv_bridge
   tf
