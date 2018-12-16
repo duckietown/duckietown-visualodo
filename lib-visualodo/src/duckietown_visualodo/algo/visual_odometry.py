@@ -64,9 +64,17 @@ class VisualOdometry:
         # self.save_image_and_trigger_vo(image2)
 
 
+    def setup_params(self, yaml_file):
+        #TODO write me
 
-    def save_camera_calibration(self, data):
+    def get_camera_info(self, camera_info):
+        # TODO write me
+
+    def get_camera_calibration(self, data):
         self.camera_K = np.resize(data.K, [3, 3])
+
+    def get_duckiebot_velocity(self, velocity):
+        self.velocity = velocity
 
     def save_image_and_trigger_vo(self, data):
         start = time.time()
@@ -105,6 +113,7 @@ class VisualOdometry:
     def visual_odometry_core(self):
         #TODO fix parameters, else 
 
+        #TODO: the intrinsic parameters should be set in function
         parameters = self.parameters
         train_image = self.images[1]
         query_image = self.images[0]
