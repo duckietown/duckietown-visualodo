@@ -58,26 +58,27 @@ class DataPlotter:
         fig = Figure()
         canvas = FigureCanvas(figure=fig)
         ax = fig.gca()
-        ax.hist(angle_hist.data, bins=angle_hist.bins, label='Test data', color='b')
-        hist_fit_angle = gauss(angle_hist.bin_centres, *angle_hist.fitted_gauss_coefficients)
+        n_bins = min(int(np.pi/10*len(angle_hist.bin_centres)/np.ptp(angle_hist.bin_centres)), 50)
+        histogram_span = [-np.pi/20, np.pi/20]
+        gaussian_samples = np.linspace(histogram_span[0], histogram_span[1], n_bins)
+        ax.hist(angle_hist.data, bins=n_bins, range=histogram_span, color='b')
+        hist_fit_angle = gauss(gaussian_samples, *angle_hist.fitted_gauss_coefficients)
         ax.bar([angle_hist.fitted_gauss_coefficients[1] - angle_th * angle_hist.fitted_gauss_coefficients[2],
                 angle_hist.fitted_gauss_coefficients[1]] + angle_th / 2 * angle_hist.fitted_gauss_coefficients[2],
                np.max(angle_hist.histogram), angle_th * angle_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
-        ax.plot(angle_hist.bin_centres, hist_fit_angle, label='Fitted data', color='g')
-        ax.axis([np.min(angle_hist.data), np.max(angle_hist.data), 0, np.max(angle_hist.histogram)])
+        ax.plot(gaussian_samples, hist_fit_angle, color='g')
         initial_histogram_img = self.render_and_crop_canvas(ax, canvas)
 
         fig_2 = Figure()
         canvas = FigureCanvas(figure=fig_2)
         ax = fig_2.gca()
-        ax.hist(length_hist.data, bins=length_hist.bins, label='Test data', color='b')
+        ax.hist(length_hist.data, bins=length_hist.bins, color='b')
         hist_fit_length = gauss(length_hist.bin_centres, *length_hist.fitted_gauss_coefficients)
         ax.bar([length_hist.fitted_gauss_coefficients[1] - length_th * length_hist.fitted_gauss_coefficients[2],
                 length_hist.fitted_gauss_coefficients[1]] + length_th / 2 * length_hist.fitted_gauss_coefficients[2],
                np.max(length_hist.histogram), length_th * length_hist.fitted_gauss_coefficients[2], alpha=0.4,
                color='r')
-        ax.plot(length_hist.bin_centres, hist_fit_length, label='Fitted data', color='g')
-        ax.axis([np.min(length_hist.data), np.max(length_hist.data), 0, np.max(length_hist.histogram)])
+        ax.plot(length_hist.bin_centres, hist_fit_length, color='g')
         final_histogram_img = self.render_and_crop_canvas(ax, canvas)
 
         matches_img = np.append(initial_matches_img, final_matches_img, axis=0)
