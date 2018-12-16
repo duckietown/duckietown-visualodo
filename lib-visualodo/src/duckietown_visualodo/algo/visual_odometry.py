@@ -22,6 +22,8 @@ from nav_msgs.msg import Odometry, Path
 
 from duckietown_msgs.msg import Twist2DStamped
 
+from random import randint
+
 
 class VisualOdometry:
     def __init__(self, parameters):
@@ -130,6 +132,11 @@ class VisualOdometry:
         end = time.time()
         rospy.logwarn("TIME: Matching done. Elapsed time: %s", end - start)
 
+        histogram_filter.fit_gaussian(matches, train_image.keypoints, query_image.keypoints,
+                                      parameters.angle_th, parameters.length_th)
+        histogram_filter.save_configuration()
+        matches = histogram_filter.saved_configuration.filter_data_by_histogram()
+
         # transform image coordinates to spherical image coordinates
         num_matches = len(matches)
 
@@ -163,11 +170,42 @@ class VisualOdometry:
         p2 = np.matmul(p2, np.transpose(R))
 
         # calculate theta for each pair
-        theta = -2 * np.arctan2((p2[:, 1] * p1[:, 2] - p2[:, 2] * p1[:, 1]), (p2[:, 0] * p1[:, 2] + p2[:, 2] * p1[:, 0]))
+        thetas = -2 * np.arctan((p2[:, 1] * p1[:, 2] - p2[:, 2] * p1[:, 1])/(p2[:, 0] * p1[:, 2] + p2[:, 2] * p1[:, 0]))
 
-        # histogram voting to find best theta
+        # # histogram voting to find best theta
+        #
+        # theta_best = np.median(thetas)
 
-        theta_best = np.median(theta)
+        p1_planar = p1 / p1[:, 0][:, None]
+        p2_planar = p2 / p2[:, 0][:, None]
+
+        # YANG implemnt the one-point RANSAC
+        num_ransac = 100
+        nums_inliners = np.zeros(num_ransac)
+        indexs_sample = np.zeros(num_ransac)
+        thetas_sample = np.zeros(num_ransac)
+        K = np.reshape(self.camera_info.K, (3, 3))
+        for i in range(num_ransac):
+            indexs_sample[i] = randint(0, num_matches-1)
+            thetas_sample[i] = thetas[int(indexs_sample[i])]
+            theta_sample = thetas_sample[i]
+            E_sample = np.array([[0, 0, np.sin(theta_sample / 2.0)],
+                                 [0, 0, np.cos(theta_sample / 2.0)],
+                                 [np.sin(theta_sample / 2.0), -np.cos(theta_sample / 2.0), 0]])
+            F_sample = np.matmul(np.matmul(K.transpose(), E_sample),K)
+
+            for j in range(num_matches):
+                sampson_distance =  np.square(np.matmul(np.matmul(p1_planar[j, : ],F_sample), p2_planar[j, :])) /\
+                                    (np.sum(np.square(np.matmul(F_sample, p1_planar[j, :])[0:1]))
+                                        + np.sum(np.square(np.matmul(F_sample, p2_planar[j,:])[0:1])))
+                if (sampson_distance < 1.5 / K[0,0]):
+                    nums_inliners[i] += 1
+        result_index = np.argmax(nums_inliners)
+        theta_best = thetas_sample[result_index]
+
+
+
+
 
 
         # processed_data_plotter.plot_theta_histogram(theta)
@@ -460,7 +498,7 @@ class VisualOdometry:
             # publish the messages
             self.odom_publisher.publish(odom)
             self.path_publisher.publish(self.path)
-            
+
             end = time.time()
             rospy.logwarn("TIME: RANSAC homography done. Elapsed time: %s", end - start)
 
