@@ -1,3 +1,5 @@
+from __future__ import division
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -7,9 +9,9 @@ import numpy as np
 import rospy
 from cv_bridge import CvBridge
 
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 
-from match_geometric_filters import HistogramLogicFilter
+from match_filters import HistogramLogicFilter
 from utils import gauss
 
 
@@ -19,9 +21,9 @@ class DataPlotter:
         self.train_image_manager = train_image
         self.query_image_manager = query_image
         self.image_bridge = CvBridge()
-        self.ransac_publisher = rospy.Publisher("ransac_homography", Image, queue_size=2)
-        self.histogram_filter_publisher = rospy.Publisher("histogram_filtering", Image, queue_size=2)
-        self.match_publisher = rospy.Publisher("matches", Image, queue_size=2)
+        self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=2)
+        self.histogram_filter_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=2)
+        self.match_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=2)
 
     def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter, weight, fitness):
         """
@@ -50,37 +52,40 @@ class DataPlotter:
         angle_th = histogram_filter.angle_threshold
         length_th = histogram_filter.length_threshold
 
-        # Initial matches (filtered by weight)
-        ax = plt.subplot2grid((2, 4), (0, 0), colspan=3)
-        img3 = cv2.drawMatches(img1, kp1, img2, kp2, good_matches, None, flags=2)
-        ax.imshow(img3)
+        initial_matches_img = cv2.drawMatches(img1, kp1, img2, kp2, good_matches, None, flags=2)
+        final_matches_img = cv2.drawMatches(img1, kp1, img2, kp2, best_matches, None, flags=2)
 
-        ax = plt.subplot2grid((2, 4), (1, 0), colspan=3)
-        img4 = cv2.drawMatches(img1, kp1, img2, kp2, best_matches, None, flags=2)
-        ax.imshow(img4)
-
-        ax = plt.subplot(2, 4, 4)
-        ax.hist(angle_hist.data, bins=angle_hist.bins, label='Test data', color='b')
-        hist_fit_angle = gauss(angle_hist.bin_centres, *angle_hist.fitted_gauss_coefficients)
+        fig = Figure()
+        canvas = FigureCanvas(figure=fig)
+        ax = fig.gca()
+        n_bins = min(int(np.pi/10*len(angle_hist.bin_centres)/np.ptp(angle_hist.bin_centres)), 50)
+        histogram_span = [-np.pi/20, np.pi/20]
+        gaussian_samples = np.linspace(histogram_span[0], histogram_span[1], n_bins)
+        ax.hist(angle_hist.data, bins=n_bins, range=histogram_span, color='b')
+        hist_fit_angle = gauss(gaussian_samples, *angle_hist.fitted_gauss_coefficients)
         ax.bar([angle_hist.fitted_gauss_coefficients[1] - angle_th * angle_hist.fitted_gauss_coefficients[2],
                 angle_hist.fitted_gauss_coefficients[1]] + angle_th / 2 * angle_hist.fitted_gauss_coefficients[2],
                np.max(angle_hist.histogram), angle_th * angle_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
-        ax.plot(angle_hist.bin_centres, hist_fit_angle, label='Fitted data', color='g')
+        ax.plot(gaussian_samples, hist_fit_angle, color='g')
+        initial_histogram_img = self.render_and_crop_canvas(ax, canvas)
 
-        ax.axis([np.min(angle_hist.data), np.max(angle_hist.data), 0, np.max(angle_hist.histogram)])
-
-        ax = plt.subplot(2, 4, 8)
-        ax.hist(length_hist.data, bins=length_hist.bins, label='Test data', color='b')
+        fig_2 = Figure()
+        canvas = FigureCanvas(figure=fig_2)
+        ax = fig_2.gca()
+        ax.hist(length_hist.data, bins=length_hist.bins, color='b')
         hist_fit_length = gauss(length_hist.bin_centres, *length_hist.fitted_gauss_coefficients)
         ax.bar([length_hist.fitted_gauss_coefficients[1] - length_th * length_hist.fitted_gauss_coefficients[2],
                 length_hist.fitted_gauss_coefficients[1]] + length_th / 2 * length_hist.fitted_gauss_coefficients[2],
                np.max(length_hist.histogram), length_th * length_hist.fitted_gauss_coefficients[2], alpha=0.4,
                color='r')
-        ax.plot(length_hist.bin_centres, hist_fit_length, label='Fitted data', color='g')
+        ax.plot(length_hist.bin_centres, hist_fit_length, color='g')
+        final_histogram_img = self.render_and_crop_canvas(ax, canvas)
 
-        ax.axis([np.min(length_hist.data), np.max(length_hist.data), 0, np.max(length_hist.histogram)])
-
-        self.histogram_filter_publisher.publish(self.image_bridge.cv2_to_imgmsg(np.append(img3, img4, axis=0)))
+        matches_img = np.append(initial_matches_img, final_matches_img, axis=0)
+        final_img = self.resize_image_aspect_ratio(
+            np.append(initial_histogram_img, final_histogram_img, axis=0), new_height=matches_img.shape[0])
+        final_img = np.append(matches_img, final_img, axis=1)
+        self.histogram_filter_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(final_img))
 
     def plot_point_correspondences(self, train_pts, query_pts, proximity_mask):
         """
@@ -113,7 +118,7 @@ class DataPlotter:
         # plt.imshow(img3)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))
+        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     def plot_displacements_from_distance_mask(self, match_distance_filter):
 
@@ -141,7 +146,7 @@ class DataPlotter:
         # plt.imshow(img)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_imgmsg(img))
+        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img))
 
     def plot_query_bounding_box(self, bounding_box):
         """
@@ -196,7 +201,7 @@ class DataPlotter:
 
             img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, **draw_params)
 
-            self.ransac_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))
+            self.ransac_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     @staticmethod
     def render_and_crop_canvas(ax, canvas):
@@ -212,5 +217,19 @@ class DataPlotter:
         img = np.fromstring(canvas.tostring_rgb(), dtype=np.uint8, sep='')
         img = img.reshape(canvas.get_width_height()[::-1] + (3,))
         subplot_bb = np.round(ax.bbox.extents)
-        img = img[int(subplot_bb[1]):int(subplot_bb[3]), int(subplot_bb[0]):int(subplot_bb[2])]
+        img = img[int(subplot_bb[1]+5):int(subplot_bb[3]+5), int(subplot_bb[0]):int(subplot_bb[2])]
         return img
+
+    @staticmethod
+    def resize_image_aspect_ratio(image, new_width=None, new_height=None):
+        height, width = image.shape[:2]
+
+        if new_width is not None and new_height is None:
+            r = new_width / width
+            new_height = int(height * r)
+        elif new_width is None and new_height is not None:
+            r = new_height / height
+            new_width = int(width * r)
+
+        new_image = cv2.resize(image, (new_width, new_height))
+        return new_image

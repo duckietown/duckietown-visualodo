@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import cv2
 import tf.transformations
 
 
@@ -7,6 +8,7 @@ import tf.transformations
 def gauss(val, *p):
     """
     1D gaussian function g(x)
+
     :param val: x input value(s) for the gaussian function
     :param p: parameter vector including [amplitude, mean, variance] describing the function
     :return: the gaussian function described by parameters 'p' for values 'val'
@@ -119,7 +121,7 @@ def knn_match_filter(knn_matches, knn_weight):
 
 def is_rotation_matrix(r_mat):
     """
-    # Checks if a matrix is a valid rotation matrix (i.e. its determinant is 1)
+    Checks if a matrix is a valid rotation matrix (i.e. its determinant is 1)
 
     :param r_mat: 3x3 candidate rotation matrix
     :return: whether or not the rotation matrix is valid
@@ -175,6 +177,20 @@ def qv_multiply(q1, v1):
 
 
 def create_circular_mask(h, w, center=None, radius=None):
+    """
+    Creates a boolean mask of sizes hxw with a circle described by its center and radius
+
+    :param h: height of mask
+    :type h: float
+    :param w: width of mask
+    :type w: float
+    :param center: center of circle
+    :type center: (2,) tuple
+    :param radius: radius of circle
+    :type radius: float
+    :return: A boolean mask containing a circle of 'True' values described by its center and radius
+    :rtype: boolean ndarray (wxh)
+    """
 
     if center is None:
         # use the middle of the image
@@ -188,3 +204,89 @@ def create_circular_mask(h, w, center=None, radius=None):
 
     mask = dist_from_center <= radius
     return mask
+
+
+def create_exponential_mask(h, w, center):
+
+    y_points, x_points = np.ogrid[h:0:-1, :w]
+    coeffs = [w / (2 * h ** 2), 0, 0]
+    y_points_poly = np.concatenate((y_points ** 2, y_points, np.ones((int(h), 1))), axis=1)
+    y_points = np.expand_dims(np.matmul(y_points_poly, coeffs), axis=1)
+    return abs(x_points - center[0]) - y_points >= 0
+
+
+def create_geometric_mask(h, w, mask_params):
+    """
+    Creates a boolean mask for splitting an image in two sectors
+
+    :param h: height of mask
+    :type h: float
+    :param w: width of mask
+    :type w: float
+    :param mask_params: array of parameters for creating the mask
+    :type mask_params: list
+    :return: A boolean mask of sizes wxh
+    :rtype: boolean ndarray (wxh)
+    """
+    proximity_r = \
+        (((mask_params[0] - mask_params[1]) * h) ** 2 + (0.5 * w) ** 2) / (-2 * (mask_params[0] - mask_params[1]) * h)
+    proximity_mask = \
+        create_circular_mask(h, w, center=(w / 2, (1 - mask_params[1]) * h + proximity_r), radius=proximity_r)
+    proximity_mask_2 = create_exponential_mask(h, w, (w / 2, 0))
+    proximity_mask = ~(~proximity_mask + ~proximity_mask_2)
+
+    proximity_mask_2 = create_circular_mask(h, w, center=(w / 2, (1 - mask_params[1]) * h), radius=mask_params[2] * w)
+    proximity_mask = ~proximity_mask_2 + proximity_mask
+    return proximity_mask
+
+
+def camera_inverse_projection(points, camera_k, camera_d, shrink_factors):
+    """
+    Performs the camera inverse projection assuming a given image downsapling factor
+
+    :param points: list of n 2-D points listed along axis 0
+    :type points: ndarray (nx2)
+    :param camera_k: camera intrinsic calibration matrix
+    :type camera_k: ndarray(3x3)
+    :param camera_d: camera deformation matrix
+    :type camera_d: ndarray(4x1) or (5x1)
+    :param shrink_factors: ratio of down-sampling, in the range (0,1]
+    :type shrink_factors: tuple (2,1)
+    :return: list of original points
+    :rtype: ndarray (nx2)
+    """
+
+    points = recover_downsampling(points, shrink_factors)
+    rectified_query_points = np.squeeze(cv2.undistortPoints(np.expand_dims(points, axis=0), camera_k, camera_d))
+    return rectified_query_points
+
+
+def recover_downsampling(points, shrink_factors):
+    """
+    Recovers the original coordinates of image pixels after down-sampling
+
+    :param points: list of n vectors of dimension m arranged along axis 1
+    :type points: ndarray (nxm)
+    :param shrink_factors: ratio of down-sampling, in the range (0,1]
+    :type shrink_factors: tuple (2,1)
+    :return: The recovered pixel coordinates
+    :rtype: ndarray (nxm)
+    """
+
+    correction_vec = [[1 / shrink_factors[1], 0], [0, 1 / shrink_factors[0]]]
+    points = np.matmul(np.asarray(points), correction_vec)
+    return points
+
+
+def normalize_points(points):
+    """
+    Normalizes a list of vectors such as they have modulus 1
+
+    :param points: list of n vectors of dimension m arranged along axis 1
+    :type points: ndarray (nxm)
+    :return: normalized list of vectors
+    """
+
+    normalization_vec = np.sqrt(np.sum(points ** 2, axis=1))
+    normalization_vec = np.matmul(np.expand_dims(normalization_vec, axis=1), np.ones((1, 2)))
+    return np.multiply(points, 1/normalization_vec)

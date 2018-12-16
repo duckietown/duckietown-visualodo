@@ -2,23 +2,34 @@ import numpy as np
 import cv2
 
 from histogram_manager import HistogramManager, MatchData
-from utils import rectifier
+from utils import rectifier, camera_inverse_projection
 
 
 class HistogramLogicFilter:
 
-    def __init__(self):
+    def __init__(self, w, h):
+        """
+        Initializes the histogram filter
+
+        :param w: width of the input images
+        :type w: float
+        :param h: height of the input images
+        :type h: float
+        """
         self.angle_fitness = 0
         self.length_fitness = 0
         self.angle_histogram = None
         self.length_histogram = None
         self.saved_configuration = None
 
+        self.image_w = w
+        self.image_h = h
+
         self.match_vector = []
         self.angle_threshold = None
         self.length_threshold = None
 
-    def fit_gaussian(self, match_vector, kp1, kp2, angle_threshold, length_threshold):
+    def filter_matches_by_histogram_fitting(self, match_vector, kp1, kp2, angle_threshold, length_threshold):
         """
         Fits a gaussian function to the length and angle distributions of keypoint matches between two images. Saves the
         results in a HistogramManager class type
@@ -47,7 +58,7 @@ class HistogramLogicFilter:
 
         for i, match_object in enumerate(match_vector):
             dist = [a_i - b_i for a_i, b_i in zip(kp2[match_object.trainIdx].pt, kp1[match_object.queryIdx].pt)]
-            angle_vec[i] = np.arctan(dist[1] / max(dist[0], 0.01))
+            angle_vec[i] = np.arctan(dist[1] / (dist[0] - self.image_w))
             length_vec[i] = np.sqrt(dist[0] ** 2 + dist[1] ** 2)
 
         # Compute histograms of the two distributions (angle and length of the displacement vectors)
@@ -89,29 +100,36 @@ class RansacFilter:
 
 
 class DistanceFilter:
-    def __init__(self, query_points, train_points, camera_K, image_shape):
+    def __init__(self, query_points, train_points, camera_k, camera_d, image_shape, shrink_factors):
         """
         Class for processing matches based on their position with respect to the camera. Points are assumed to match
         in the same order than they appear in their vectors
 
-        :param query_points: array of 2D keypoints of train image
+        :param query_points: array of 2D key-points of train image
         :type query_points: ndarray(nx2)
-        :param train_points: array of 2D keypoints of query image
+        :param train_points: array of 2D key-points of query image
         :type train_points: ndarray(nx2)
-        :param camera_K: camera intrinsic calibration matrix
-        :type camera_K: ndarray(3x3)
+        :param camera_k: camera intrinsic calibration matrix
+        :type camera_k: ndarray(3x3)
+        :param camera_d: camera deformation matrix
+        :type camera_d: ndarray(4x1) or (5x1)
         :param image_shape: shape of images (height, width)
         :type image_shape: tuple(2,1)
+        :param shrink_factors: ratio of down-sampling, in the range (0,1]
+        :type shrink_factors: tuple (2,1)
         """
+
         self.query_points = query_points
         self.train_points = train_points
-        self.camera_K = camera_K
+        self.camera_K = camera_k
+        self.camera_D = camera_d
         self.image_shape = image_shape
+        self.shrink_factors = shrink_factors
 
-        self.norm_close_query_points = []
-        self.norm_close_train_points = []
-        self.norm_distant_query_points = []
-        self.norm_distant_train_points = []
+        self.rectified_close_query_points = []
+        self.rectified_close_train_points = []
+        self.rectified_distant_query_points = []
+        self.rectified_distant_train_points = []
 
         self.close_query_points = []
         self.close_train_points = []
@@ -120,7 +138,7 @@ class DistanceFilter:
 
         self.proximity_mask = []
 
-    def split_by_distance(self, proximity_mask):
+    def split_by_distance_mask(self, proximity_mask):
         """
         Separates the matches in two categories depending on whether they lie inside the provided mask or not
 
@@ -133,30 +151,30 @@ class DistanceFilter:
 
         self.proximity_mask = proximity_mask
 
-        # Get far/close-region matches
-        for query_point, train_point in zip(self.query_points, self.train_points):
+        selected_distant_points = np.zeros(len(self.query_points))
 
-            # Transform points to homogeneous coordinate system
-            query_point = np.append([query_point], [1])
-            train_point = np.append([train_point], [1])
+        # Get far/close-region matches
+        for i in range(0, len(self.query_points)):
+            query_point = self.query_points[i]
+            train_point = self.train_points[i]
 
             if not proximity_mask[int(query_point[1]), int(query_point[0])] and \
                     not proximity_mask[int(train_point[1]), int(train_point[0])]:
-                # self.distant_query_points.append(np.matmul(np.linalg.inv(self.camera_K), query_point)[0:2])
-                # self.distant_train_points.append(np.matmul(np.linalg.inv(self.camera_K), train_point)[0:2])
-                self.distant_query_points.append(query_point[0:2])
-                self.distant_train_points.append(train_point[0:2])
+                selected_distant_points[i] = 1
 
-            else:
-                self.close_query_points.append(query_point[0:2])
-                self.close_train_points.append(train_point[0:2])
+        # Split image points according to mask
+        self.distant_query_points = np.asarray(self.query_points)[selected_distant_points == 1]
+        self.distant_train_points = np.asarray(self.train_points)[selected_distant_points == 1]
+        self.close_query_points = np.asarray(self.query_points)[selected_distant_points == 0]
+        self.close_train_points = np.asarray(self.train_points)[selected_distant_points == 0]
 
-                # proximal_query_matches.append(np.matmul(np.linalg.inv(self.camera_K), query_point)[0:2])
-                # proximal_train_matches.append(np.matmul(np.linalg.inv(self.camera_K), train_point)[0:2])
+        # Obtain normalized homogeneous pixel coordinates and split points in the same way
+        rectified_query_points = \
+            camera_inverse_projection(self.query_points, self.camera_K, self.camera_D, self.shrink_factors)
+        rectified_train_points = \
+            camera_inverse_projection(self.train_points, self.camera_K, self.camera_D, self.shrink_factors)
 
-        normalization_vec = [[1 / self.image_shape[1], 0], [0, 1 / self.image_shape[0]]]
-
-        self.norm_distant_query_points = np.matmul(self.distant_query_points, normalization_vec)
-        self.norm_distant_train_points = np.matmul(self.distant_train_points, normalization_vec)
-        self.norm_close_query_points = np.matmul(self.close_query_points, normalization_vec)
-        self.norm_close_train_points = np.matmul(self.close_train_points, normalization_vec)
+        self.rectified_distant_query_points = np.asarray(rectified_query_points)[selected_distant_points == 1]
+        self.rectified_distant_train_points = np.asarray(rectified_train_points)[selected_distant_points == 1]
+        self.rectified_close_query_points = np.asarray(rectified_query_points)[selected_distant_points == 0]
+        self.rectified_close_train_points = np.asarray(rectified_train_points)[selected_distant_points == 0]

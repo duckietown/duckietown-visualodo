@@ -36,7 +36,7 @@ def define_parameters():
     parameters = AlignmentParameters()
 
     # Accepted std deviations from average
-    parameters.angle_th = 1.5  # Angular distribution
+    parameters.angle_th = 1  # Angular distribution
     parameters.length_th = 1.5  # Length distribution
 
     # Knn neighbors used. Cannot be changed from 2 right now
@@ -47,8 +47,8 @@ def define_parameters():
     parameters.shrink_y_ratio = 1 / 2
 
     # Publish debug images
-    parameters.plot_matches = True
-    parameters.plot_histogram_filtering = False
+    parameters.plot_matches = False
+    parameters.plot_histogram_filtering = True
 
     # Knn weight ratio exploration. Relates how bigger must the first match be wrt the second to be considered a match
     # parameters.histogram_weigh = np.arange(1.9, 1.3, -0.05)
@@ -62,6 +62,7 @@ def define_parameters():
     parameters.matcher = 'BF'
     parameters.feature_extractor = 'ORB'
 
+    # Pre-filter the matches by fitting gaussian distributions in their histograms
     parameters.filter_by_histogram = True
 
     return parameters
@@ -88,8 +89,7 @@ if __name__ == '__main__':
         visual_odometry = VisualOdometry(input_parameters)
         rospy.Subscriber("/maserati/camera_node/image/compressed", CompressedImage, call_save_image, visual_odometry)
         rospy.Subscriber("/maserati/joy_mapper_node/car_cmd", Twist2DStamped, call_save_joy_command, visual_odometry)
-        camera_info_sub = rospy.Subscriber("/maserati/camera_node/camera_info", CameraInfo,
-                                           call_save_camera_calibration, visual_odometry)
+        rospy.Subscriber("/maserati/camera_node/camera_info", CameraInfo, call_save_camera_calibration, visual_odometry)
 
     except rospy.ROSInterruptException:
         pass
