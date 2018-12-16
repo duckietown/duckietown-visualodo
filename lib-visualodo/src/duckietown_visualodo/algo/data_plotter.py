@@ -25,7 +25,7 @@ class DataPlotter:
         self.histogram_filter_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=2)
         self.match_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=2)
 
-    def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter, weight, fitness):
+    def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter):
         """
         Plots the result of the match histogram filtering
 
@@ -35,10 +35,6 @@ class DataPlotter:
         :type best_matches: ndarray (nx2)
         :param histogram_filter: histogram filtering object
         :type histogram_filter: HistogramLogicFilter
-        :param weight: used weight for histogram filtering
-        :type weight: float
-        :param fitness: final fitness of the histogram filtering for given weight
-        :type fitness: float
         """
 
         img1 = self.train_image_manager.image
