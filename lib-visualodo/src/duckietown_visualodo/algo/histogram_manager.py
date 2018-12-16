@@ -93,7 +93,7 @@ class HistogramManager:
             m, s = stats.norm.fit(self.data)
 
             self.outliers = abs(self.data - m) > threshold * s
-            self.fitted_gauss_coefficients = [1, m, s]
+            self.fitted_gauss_coefficients = [max(self.histogram), m, s]
 
         except Exception as fit_exception:
             print("Curve could not be fitted to angle distribution: ", fit_exception)

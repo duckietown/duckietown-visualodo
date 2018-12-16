@@ -13,7 +13,7 @@ from math import isnan
 from cv_bridge import CvBridge
 
 from data_plotter import DataPlotter
-from match_geometric_filters import HistogramLogicFilter, DistanceFilter
+from match_filters import HistogramLogicFilter, DistanceFilter
 from utils import knn_match_filter, rotation_matrix_to_euler_angles, qv_multiply, create_geometric_mask
 from image_manager import ImageManager
 
