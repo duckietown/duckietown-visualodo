@@ -36,7 +36,7 @@ def define_parameters():
     parameters = AlignmentParameters()
 
     # Accepted std deviations from average
-    parameters.angle_th = 1.5  # Angular distribution
+    parameters.angle_th = 1  # Angular distribution
     parameters.length_th = 1.5  # Length distribution
 
     # Knn neighbors used. Cannot be changed from 2 right now
@@ -88,8 +88,7 @@ if __name__ == '__main__':
         visual_odometry = VisualOdometry(input_parameters)
         rospy.Subscriber("/maserati/camera_node/image/compressed", CompressedImage, call_save_image, visual_odometry)
         rospy.Subscriber("/maserati/joy_mapper_node/car_cmd", Twist2DStamped, call_save_joy_command, visual_odometry)
-        camera_info_sub = rospy.Subscriber("/maserati/camera_node/camera_info", CameraInfo,
-                                           call_save_camera_calibration, visual_odometry)
+        rospy.Subscriber("/maserati/camera_node/camera_info", CameraInfo, call_save_camera_calibration, visual_odometry)
 
     except rospy.ROSInterruptException:
         pass
