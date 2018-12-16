@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 from histogram_manager import HistogramManager, MatchData
-from utils import rectifier, camera_inverse_projection, normalize_points
+from utils import rectifier, camera_inverse_projection
 
 
 class HistogramLogicFilter:

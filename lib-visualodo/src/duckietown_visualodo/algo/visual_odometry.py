@@ -196,17 +196,17 @@ class VisualOdometry:
                 # Average sign of rotation
                 rot_sign = np.sign(np.average(np.array(matched_query_points) - np.array(matched_train_points), axis=0)[0])
 
-                # Calculate two rotation hypothesis for all far matches assuming that they lay close to the ground plane
+                # Calculate two rotation hypothesis for all far matches assuming that they lay distant to camera
                 for distant_q_p, distant_t_p in \
                         zip(match_distance_filter.rectified_distant_query_points,
                             match_distance_filter.rectified_distant_train_points):
 
                     a = (distant_t_p[0] - distant_q_p[0]) \
                         / np.sqrt((distant_t_p[0]*distant_q_p[0])**2 + distant_t_p[0]**2 + distant_q_p[0]**2 + 1)
-                    rot = np.arccos((distant_t_p[1]+distant_t_p[0]*distant_q_p[1]*np.array([a, -a])) / distant_q_p[1])
-                    rot = [rot_h for rot_h in rot if not isnan(rot_h)]
+                    # rot = np.arccos((distant_t_p[1]+distant_t_p[0]*distant_q_p[1]*np.array([a, -a])) / distant_q_p[1])
+                    # rot = [rot_h for rot_h in rot if not isnan(rot_h)]
+                    rot = np.arcsin(a)
 
-                    rot = a
                     # Use hypothesis whose sign is consistent with the average sign
                     for rot_h in np.unique(rot):
                         if np.sign(rot_h) == rot_sign:
@@ -215,7 +215,6 @@ class VisualOdometry:
                             rot_hypothesis.append(rot_h)
 
                 rot_hypothesis = np.unique(rot_hypothesis)
-
                 rot_hypothesis_rmse = np.zeros((len(rot_hypothesis), 1))
 
                 # Select the best hypothesis using 1 point RANSAC
@@ -235,6 +234,7 @@ class VisualOdometry:
                         match_distance_filter.rectified_distant_query_points, (n_distant_matches, 2))
 
                     rot_hypothesis_rmse[hypothesis_index] = np.sum(np.sqrt(np.sum(np.power(error, 2), axis=1)))
+
                 theta = rot_hypothesis[np.argmin(rot_hypothesis_rmse)]
                 self.last_theta = theta
 

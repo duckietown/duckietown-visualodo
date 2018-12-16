@@ -62,6 +62,7 @@ def define_parameters():
     parameters.matcher = 'BF'
     parameters.feature_extractor = 'ORB'
 
+    # Pre-filter the matches by fitting gaussian distributions in their histograms
     parameters.filter_by_histogram = True
 
     return parameters
