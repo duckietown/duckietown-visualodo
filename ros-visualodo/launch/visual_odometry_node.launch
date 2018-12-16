@@ -1,0 +1,17 @@
+<launch>
+    <arg name="veh"  doc="Name of vehicle. ex: megaman"/>
+    <arg name="config" default="baseline" doc="Specify a config."/>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
+
+    <arg name="pkg_name" value="duckietown_visualodo"/>
+    <arg name="node_name" default="visual_odometry_node"/>
+
+    <group ns="$(arg veh)">
+        <node name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true" >
+            <!-- <rosparam command="load" file="$(find $(arg pkg_name))/lib-$(arg pkg_name)/src/duckietown_$(arg pkg_name)/data/$(arg node_name)/$(arg param_file_name).yaml"/> -->
+            <rosparam command="load" file="duckietown-visualodo/lib-visualodo/src/duckietown_visualodo/data/$(arg node_name)/$(arg param_file_name).yaml"/>
+        </node>
+
+    </group>
+
+</launch>
