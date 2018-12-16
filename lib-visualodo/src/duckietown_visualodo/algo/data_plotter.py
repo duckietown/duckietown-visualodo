@@ -9,7 +9,7 @@ import numpy as np
 import rospy
 from cv_bridge import CvBridge
 
-from sensor_msgs.msg import Image, CompressedImage
+from sensor_msgs.msg import CompressedImage
 
 from match_filters import HistogramLogicFilter
 from utils import gauss
@@ -21,9 +21,9 @@ class DataPlotter:
         self.train_image_manager = train_image
         self.query_image_manager = query_image
         self.image_bridge = CvBridge()
-        self.ransac_publisher = rospy.Publisher("ransac_homography", Image, queue_size=2)
-        self.histogram_filter_publisher = rospy.Publisher("histogram_filtering/image/compressed", CompressedImage, queue_size=2)
-        self.match_publisher = rospy.Publisher("matches", Image, queue_size=2)
+        self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=2)
+        self.histogram_filter_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=2)
+        self.match_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=2)
 
     def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter, weight, fitness):
         """
@@ -117,7 +117,7 @@ class DataPlotter:
         # plt.imshow(img3)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))
+        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     def plot_displacements_from_distance_mask(self, match_distance_filter):
 
@@ -145,7 +145,7 @@ class DataPlotter:
         # plt.imshow(img)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_imgmsg(img))
+        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img))
 
     def plot_query_bounding_box(self, bounding_box):
         """
@@ -200,7 +200,7 @@ class DataPlotter:
 
             img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, **draw_params)
 
-            self.ransac_publisher.publish(self.image_bridge.cv2_to_imgmsg(img3))
+            self.ransac_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     @staticmethod
     def render_and_crop_canvas(ax, canvas):
