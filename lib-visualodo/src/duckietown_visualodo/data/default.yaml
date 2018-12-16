@@ -4,7 +4,7 @@ description: >
 #constructor: visual_odometry.VisualOdometry
 
 parameters:
-  threshold_angle: 1.5
+  threshold_angle: 1
   threshold_length: 1.5
 
 

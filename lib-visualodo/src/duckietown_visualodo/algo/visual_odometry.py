@@ -9,7 +9,6 @@ import rospy
 import tf2_ros as tf2
 import tf.transformations
 
-from math import isnan
 from cv_bridge import CvBridge
 
 from data_plotter import DataPlotter
@@ -24,8 +23,7 @@ from duckietown_msgs.msg import Twist2DStamped
 
 
 class VisualOdometry:
-    def __init__(self, parameters):
-        self.parameters = parameters
+    def __init__(self):
         self.images = np.array([ImageManager(), ImageManager()])
         self.bridge = CvBridge()
 
@@ -44,39 +42,42 @@ class VisualOdometry:
         # Current command sent to duckiebot
         self.joy_command = Twist2DStamped()
 
+        # Initiate the feature detector
+        self.cv2_detector = None
+
         self.last_ros_time = rospy.get_time()
         self.last_theta = 0
 
-        # Initiate the feature detector
-        if parameters.feature_extractor == 'SURF':
-            self.cv2_detector = cv2.xfeatures2d.SURF_create()
-        elif parameters.feature_extractor == 'ORB':
-            self.cv2_detector = cv2.ORB_create(nfeatures=80)
-        else:
-            self.cv2_detector = cv2.xfeatures2d.SIFT_create()
+        # Initialize parameters
+        self.parameters = VisualOdometryParameters()
 
     def save_command(self, data):
         self.joy_command = data
 
-    def setup_params(self, yaml_file):
-        #TODO write me
+    def set_parameter(self, param_name, param_val):
+        exec ("self.parameters" + str(param_name) + "=" + str(param_val))
+        if param_name == 'feature_extractor':
+            self.initialize_extractor(param_val)
+
+    def initialize_extractor(self, extractor_type):
+        if extractor_type == 'SURF':
+            self.cv2_detector = cv2.xfeatures2d.SURF_create()
+        elif extractor_type == 'ORB':
+            self.cv2_detector = cv2.ORB_create(nfeatures=80)
+        else:
+            self.cv2_detector = cv2.xfeatures2d.SIFT_create()
 
     def get_camera_info(self, camera_info):
-        # TODO write me
+        self.camera_K = np.resize(camera_info.K, [3, 3])
+        self.camera_D = np.asarray(camera_info.D)
 
-    def get_camera_calibration(self, data):
-        self.camera_K = np.resize(data.K, [3, 3])
-        self.camera_D = np.asarray(data.D)
+    def get_duckiebot_velocity(self, joy_command):
+        self.joy_command = joy_command
 
-    def get_duckiebot_velocity(self, velocity):
-        self.velocity = velocity
-
-    def save_image_and_trigger_vo(self, data):
-        start = time.time()
-        cv_image = self.bridge.compressed_imgmsg_to_cv2(data)
+    def get_image_and_trigger_vo(self, image):
 
         # Read new image, extract features, and flip vector to place it in the first position
-        self.images[1].load_image(cv_image, gray_scale=True)
+        self.images[1].load_image(image, gray_scale=True)
         self.extract_image_features(self.images[1])
         self.images = np.flip(self.images)
 
@@ -85,11 +86,7 @@ class VisualOdometry:
 
         self.last_ros_time = rospy.get_time()
 
-        rospy.logwarn("TIME: Total time: %s", time.time() - start)
-        rospy.logwarn("===================================================")
-
     def extract_image_features(self, image):
-        #TODO fix paramters, else good
         parameters = self.parameters
 
         # Down-sample image
@@ -106,9 +103,6 @@ class VisualOdometry:
         rospy.logwarn("TIME: Extract features of image. Elapsed time: %s", end - start)
 
     def visual_odometry_core(self):
-        #TODO fix parameters, else 
-
-        #TODO: the intrinsic parameters should be set in function
         parameters = self.parameters
         train_image = self.images[1]
         query_image = self.images[0]
@@ -153,7 +147,8 @@ class VisualOdometry:
             if parameters.filter_by_histogram:
                 start = time.time()
                 histogram_filter.filter_matches_by_histogram_fitting(
-                    matches, train_image.keypoints, query_image.keypoints, parameters.angle_th, parameters.length_th)
+                    matches, train_image.keypoints, query_image.keypoints, parameters.threshold_angle,
+                    parameters.threshold_length)
                 end = time.time()
                 rospy.logwarn("TIME: Histogram filtering done. Elapsed time: %s", end - start)
 
@@ -252,7 +247,7 @@ class VisualOdometry:
 
             z_rot_mat = np.array([[np.cos(theta), np.sin(theta), 0], [-np.sin(theta), np.cos(theta), 0], [0, 0, 1]])
 
-            t_vec = [self.v / 30.0, 0, 0]
+            t_vec = [self.joy_command.v / 30.0, 0, 0]
 
             """
             n_proximal_matches = n_final_matches - n_distant_matches
@@ -360,7 +355,7 @@ class VisualOdometry:
             current_time = rospy.Time.now()
 
             # If velocity command is 0, set displacement to 0
-            if abs(self.v) < 0.01:
+            if abs(self.joy_command.v) < 0.01:
                 t_vec = np.array([0.0, 0.0, 0.0], dtype=float)
 
             # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
@@ -407,7 +402,7 @@ class VisualOdometry:
 
             # set the velocity
             odom.child_frame_id = "base_link"
-            odom.twist.twist = Twist(Vector3(self.v, 0, 0), Vector3(0, 0, self.omega))
+            odom.twist.twist = Twist(Vector3(self.joy_command.v, 0, 0), Vector3(0, 0, self.joy_command.omega))
 
             # publish the messages
             self.odom_publisher.publish(odom)
@@ -423,3 +418,22 @@ class VisualOdometry:
             rospy.logerr(e)
             rospy.logwarn("Not enough matches for RANSAC homography")
             raise
+
+
+class VisualOdometryParameters:
+    def __init__(self):
+        self.threshold_angle = 0
+        self.threshold_length = 0
+
+        self.shrink_x_ratio = 0
+        self.shrink_y_ratio = 0
+
+        self.plot_matches = False
+        self.plot_histogram_filtering = False
+
+        self.feature_extractor = 'ORB'
+        self.matcher = 'BF'
+        self.knn_neighbors = 0
+        self.filter_by_histogram = False
+
+        self.knn_weight = [1.5]
