@@ -203,8 +203,6 @@ class VisualOdometry:
 
                     a = (distant_t_p[0] - distant_q_p[0]) \
                         / np.sqrt((distant_t_p[0]*distant_q_p[0])**2 + distant_t_p[0]**2 + distant_q_p[0]**2 + 1)
-                    # rot = np.arccos((distant_t_p[1]+distant_t_p[0]*distant_q_p[1]*np.array([a, -a])) / distant_q_p[1])
-                    # rot = [rot_h for rot_h in rot if not isnan(rot_h)]
                     rot = np.arcsin(a)
 
                     # Use hypothesis whose sign is consistent with the average sign
