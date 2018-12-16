@@ -43,8 +43,8 @@ def define_parameters():
     parameters.knn_neighbors = 2
 
     # Image shrink factors in both dimensions
-    parameters.shrink_x_ratio = 1 / 2
-    parameters.shrink_y_ratio = 1 / 2
+    parameters.shrink_x_ratio = 1
+    parameters.shrink_y_ratio = 1
 
     # Publish debug images
     parameters.plot_matches = True
@@ -75,8 +75,8 @@ def call_save_joy_command(data, vo_object):
     vo_object.save_command(data)
 
 
-def call_save_camera_calibration(data, vo_object):
-    vo_object.save_camera_calibration(data)
+def call_save_camera_info(data, vo_object):
+    vo_object.save_camera_info(data)
 
 
 if __name__ == '__main__':
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         rospy.Subscriber("/maserati/camera_node/image/compressed", CompressedImage, call_save_image, visual_odometry)
         rospy.Subscriber("/maserati/joy_mapper_node/car_cmd", Twist2DStamped, call_save_joy_command, visual_odometry)
         camera_info_sub = rospy.Subscriber("/maserati/camera_node/camera_info", CameraInfo,
-                                           call_save_camera_calibration, visual_odometry)
+                                           call_save_camera_info, visual_odometry)
 
     except rospy.ROSInterruptException:
         pass

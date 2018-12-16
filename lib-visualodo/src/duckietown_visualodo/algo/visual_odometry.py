@@ -30,7 +30,7 @@ class VisualOdometry:
         self.bridge = CvBridge()
 
         # Intrinsic camera calibration matrix
-        self.camera_K = None
+        self.camera_info = None
 
         # Ros stuff
         self.path_publisher = rospy.Publisher("path", Path, queue_size=2)
@@ -68,8 +68,8 @@ class VisualOdometry:
     def save_command(self, data):
         self.joy_command = data
 
-    def save_camera_calibration(self, data):
-        self.camera_K = np.resize(data.K, [3, 3])
+    def save_camera_info(self, data):
+        self.camera_info = data
 
     def save_image_and_trigger_vo(self, data):
         start = time.time()
@@ -140,13 +140,17 @@ class VisualOdometry:
             query_matches[i] = matches[i].queryIdx
             train_matches[i] = matches[i].trainIdx
 
-        train_keypoints = np.append(cv2.KeyPoint().convert(train_image.keypoints, train_matches),
-                                              np.ones((num_matches, 1)), 1)
-        query_keypoints = np.append(cv2.KeyPoint().convert(query_image.keypoints, query_matches),
-                                              np.ones((num_matches, 1)), 1)
+        train_keypoints = cv2.KeyPoint().convert(train_image.keypoints, train_matches)
+        query_keypoints = cv2.KeyPoint().convert(query_image.keypoints, query_matches)
 
-        p1 = train_keypoints / np.linalg.norm(train_keypoints, axis=1)[:, None]
-        p2 = query_keypoints / np.linalg.norm(query_keypoints, axis=1)[:,None]
+        train_keypoints_undistorted = np.squeeze(cv2.undistortPoints(np.expand_dims(train_keypoints, axis=0), np.reshape(self.camera_info.K, (3, 3)), np.array(self.camera_info.D)))
+        query_keypoints_undistorted = np.squeeze(cv2.undistortPoints(np.expand_dims(query_keypoints, axis=0), np.reshape(self.camera_info.K, (3, 3)), np.array(self.camera_info.D)))
+
+        train_keypoints_undistorted = np.append(train_keypoints_undistorted, np.ones((num_matches, 1)), 1)
+        query_keypoints_undistorted = np.append(query_keypoints_undistorted, np.ones((num_matches, 1)), 1)
+
+        p1 = train_keypoints_undistorted / np.linalg.norm(train_keypoints_undistorted, axis=1)[:, None]
+        p2 = query_keypoints_undistorted / np.linalg.norm(query_keypoints_undistorted, axis=1)[:, None]
 
 
 
@@ -164,6 +168,7 @@ class VisualOdometry:
         # histogram voting to find best theta
 
         theta_best = np.median(theta)
+
 
         # processed_data_plotter.plot_theta_histogram(theta)
 
@@ -237,7 +242,7 @@ class VisualOdometry:
             proximity_r = ((0.2 * h) ** 2 + (0.5 * w) ** 2) / (0.4 * h)
             proximity_mask = create_circular_mask(h, w, center=(w / 2, 0.3 * h + proximity_r), radius=proximity_r)
 
-            match_distance_filter = DistanceFilter(matched_query_points, matched_train_points, self.camera_K, (h, w))
+            match_distance_filter = DistanceFilter(matched_query_points, matched_train_points, self.camera_info, (h, w))
             match_distance_filter.split_by_distance(proximity_mask)
 
             # Remove me
@@ -336,7 +341,7 @@ class VisualOdometry:
             # Extract essential matrix
             start = time.time()
             [h_matrix, mask] = cv2.findEssentialMat(np.array(matched_train_points, dtype=float),
-                                                    np.array(matched_query_points, dtype=float), self.camera_K,
+                                                    np.array(matched_query_points, dtype=float), self.camera_info,
                                                     method=cv2.RANSAC, prob=0.999, threshold=1.0)
 
             # Remove RANSAC outliers
@@ -362,7 +367,7 @@ class VisualOdometry:
             else:
                 # Recover rotation and translation from essential matrix
                 [_, rot_mat, t_vec, _] = \
-                    cv2.recoverPose(h_matrix, matched_train_points, matched_query_points, self.camera_K)
+                    cv2.recoverPose(h_matrix, matched_train_points, matched_query_points, self.camera_info)
 
                 rot_mag = ((np.trace(rot_mat) - 1) / 2)
 
