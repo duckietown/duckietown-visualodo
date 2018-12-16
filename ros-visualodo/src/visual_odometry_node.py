@@ -108,12 +108,19 @@ class VisualOdometryNode:
         # We just need to pass linear velocity
         self.visual_odometer.get_duckiebot_velocity(msg)
 
-    def loginfo(self, s):
+    def log_info(self, s):
         rospy.loginfo('[%s] %s' % (self.node_name, s))
 
     def on_shutdown(self):
-        self.loginfo("Shutdown.")
+        self.log_info("Shutdown.")
 
+    def cb_switch(self, data):
+        # TODO what goes here?
+        print('What am i for?')
+        
+    def cb_mode(self, data):
+        # TODO what goes here?
+        print('What am i for?')
 
 if __name__ == '__main__':
     rospy.init_node('visual_odometry', anonymous=False)
