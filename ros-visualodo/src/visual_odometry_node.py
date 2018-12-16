@@ -117,7 +117,7 @@ class VisualOdometryNode:
     def cb_switch(self, data):
         # TODO what goes here?
         print('What am i for?')
-        
+
     def cb_mode(self, data):
         # TODO what goes here?
         print('What am i for?')

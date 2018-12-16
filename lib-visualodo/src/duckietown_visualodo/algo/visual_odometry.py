@@ -131,7 +131,6 @@ class VisualOdometry:
         # Initialize fitness trackers
         fitness = float('-inf')
         max_fit = fitness
-        max_weight = parameters.knn_weight[0]
 
         # Explore all the weight values
         for weight in parameters.knn_weight:
@@ -158,7 +157,6 @@ class VisualOdometry:
                 if fitness > max_fit:
                     histogram_filter.save_configuration()
                     max_fit = fitness
-                    max_weight = weight
 
         # Recover best configuration from histogram filtering (for best weight)
         if parameters.filter_by_histogram and histogram_filter.saved_configuration is not None:
@@ -167,8 +165,7 @@ class VisualOdometry:
 
             # Publish the results of histogram filtering
             if parameters.plot_histogram_filtering:
-                processed_data_plotter.plot_histogram_filtering(
-                    unfiltered_matches, matches, histogram_filter, max_weight, max_fit)
+                processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
 
         n_final_matches = len(matches)
 
