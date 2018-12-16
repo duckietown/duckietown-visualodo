@@ -33,8 +33,6 @@ class VisualOdometry:
         self.camera_K = None
 
         # Ros stuff
-        self.path_publisher = rospy.Publisher("path", Path, queue_size=2)
-        self.odom_publisher = rospy.Publisher("odometry", Odometry, queue_size=2)
         self.transform_broadcaster = tf2.TransformBroadcaster()
 
         # Transformation from world to duckiebot frame
@@ -65,8 +63,7 @@ class VisualOdometry:
         # image2 = self.bridge.cv2_to_compressed_imgmsg(aux_image_manager.image)
         # self.save_image_and_trigger_vo(image2)
 
-    def save_command(self, data):
-        self.joy_command = data
+
 
     def save_camera_calibration(self, data):
         self.camera_K = np.resize(data.K, [3, 3])
@@ -89,6 +86,7 @@ class VisualOdometry:
         rospy.logwarn("===================================================")
 
     def extract_image_features(self, image):
+        #TODO fix paramters, else good
         parameters = self.parameters
 
         # Down-sample image
@@ -105,6 +103,7 @@ class VisualOdometry:
         rospy.logwarn("TIME: Extract features of image. Elapsed time: %s", end - start)
 
     def visual_odometry_core(self):
+        #TODO fix parameters, else 
 
         parameters = self.parameters
         train_image = self.images[1]
@@ -265,7 +264,7 @@ class VisualOdometry:
                                   [-np.sin(theta), np.cos(theta), 0],
                                   [0, 0, 1]])
 
-            t_vec = [self.joy_command.v / 30.0, 0, 0]
+            t_vec = [self.v / 30.0, 0, 0]
 
             n_proximal_matches = n_final_matches - n_distant_matches
             t_hypothesis = []
@@ -275,8 +274,8 @@ class VisualOdometry:
                     zip(match_distance_filter.norm_close_query_points, match_distance_filter.norm_close_train_points):
                 proximal_q_p = np.matmul(np.transpose(z_rot_mat), np.append([proximal_q_p], [1]))
 
-                ty = (proximal_t_p[1] - proximal_q_p[1]) * self.joy_command.v
-                tx = (proximal_t_p[0] - proximal_q_p[0]) * self.joy_command.v
+                ty = (proximal_t_p[1] - proximal_q_p[1]) * self.v
+                tx = (proximal_t_p[0] - proximal_q_p[0]) * self.v
 
                 t_hypothesis.append(np.matmul(np.transpose(y_rot_mat), [tx, ty, 0]))
 
@@ -370,7 +369,7 @@ class VisualOdometry:
             current_time = rospy.Time.now()
 
             # If velocity command is 0, set displacement to 0
-            if abs(self.joy_command.v) < 0.01:
+            if abs(self.v) < 0.01:
                 t_vec = np.array([0.0, 0.0, 0.0], dtype=float)
 
             # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
@@ -417,7 +416,7 @@ class VisualOdometry:
 
             # set the velocity
             odom.child_frame_id = "base_link"
-            odom.twist.twist = Twist(Vector3(self.joy_command.v, 0, 0), Vector3(0, 0, self.joy_command.omega))
+            odom.twist.twist = Twist(Vector3(self.v, 0, 0), Vector3(0, 0, self.omega))
 
             # publish the messages
             self.odom_publisher.publish(odom)
