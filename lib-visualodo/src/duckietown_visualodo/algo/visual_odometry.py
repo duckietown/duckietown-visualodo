@@ -41,13 +41,20 @@ class VisualOdometry:
         # Initialize parameters
         self.parameters = VisualOdometryParameters()
 
+    @staticmethod
+    def on_shutdown():
+        rospy.loginfo("Bye bye!")
+
     def save_command(self, data):
         self.joy_command = data
 
     def set_parameter(self, param_name, param_val):
-        exec ("self.parameters" + str(param_name) + "=" + str(param_val))
-        if param_name == 'feature_extractor':
-            self.initialize_extractor(param_val)
+        try:
+            exec ("self.parameters." + param_name + "=" + param_val)
+            if param_name == 'feature_extractor':
+                self.initialize_extractor(param_val)
+        except Exception as e:
+            raise NameError("There was an error setting parameter \'" + param_name + "\' with value: " + param_val, e)
 
     def initialize_extractor(self, extractor_type):
         if extractor_type == 'SURF':

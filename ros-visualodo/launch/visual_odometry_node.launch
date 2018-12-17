@@ -1,15 +1,25 @@
 <launch>
     <arg name="veh"  doc="Name of vehicle. ex: megaman"/>
-    <arg name="config" default="baseline" doc="Specify a config."/>
     <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
 
     <arg name="pkg_name" value="duckietown_visualodo"/>
+    <arg name="abbr_pkg_name" value="visualodo"/>
     <arg name="node_name" default="visual_odometry_node"/>
+    <arg name="path" default="path"/>
+    <arg name="odometry" default="odometry"/>
 
-    <group ns="$(arg veh)">
+    <arg name="_image_transport" default="compressed"/>
+    <group ns="$(arg abbr_pkg_name)">
         <node name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true" >
-            <!-- <rosparam command="load" file="$(find $(arg pkg_name))/lib-$(arg pkg_name)/src/duckietown_$(arg pkg_name)/data/$(arg node_name)/$(arg param_file_name).yaml"/> -->
-            <rosparam command="load" file="duckietown-visualodo/lib-visualodo/src/duckietown_visualodo/data/$(arg node_name)/$(arg param_file_name).yaml"/>
+            <rosparam command="load" file="$(find duckietown_visualodo)/../lib-$(arg abbr_pkg_name)/src/$(arg pkg_name)/data/$(arg param_file_name).yaml"/>
+            <param name="~camera_topic" value="/$(arg veh)/camera_node/image" type="str"/>
+            <param name="~camera_info_topic" value="/$(arg veh)/camera_node/camera_info" type="str"/>
+            <param name="~image_transport" value="$(arg _image_transport)" type="str"/>
+            <param name="~joy_topic" value="/$(arg veh)/joy_mapper_node/car_cmd"/>
+            <param name="~veh" value="$(arg veh)"/>
+            <param name="~path" value="$(arg path)"/>
+            <param name="~odometry" value="$(arg odometry)"/>
+            <param name="~yaml_root" value="/$(arg abbr_pkg_name)/$(arg node_name)/parameters/"/>
         </node>
 
     </group>
