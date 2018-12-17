@@ -14,8 +14,8 @@ parameters:
   plot_matches: True
   plot_histogram_filtering: False
 
-  feature_extractor: 'ORB'
-  matcher: 'BF'
+  feature_extractor: "ORB"
+  matcher: "BF"
   knn_neighbors: 2
   filter_by_histogram: True
 
