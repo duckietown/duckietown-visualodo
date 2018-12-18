@@ -205,7 +205,7 @@ class VisualOdometryNode:
 
 
 if __name__ == '__main__':
-    rospy.init_node('visual_odometry', anonymous=False)
+    rospy.init_node('visual_odometry_node', anonymous=False)
 
     visual_odometry_node = VisualOdometryNode()
 
