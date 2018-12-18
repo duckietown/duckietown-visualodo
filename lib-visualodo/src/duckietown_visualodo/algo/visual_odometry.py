@@ -41,14 +41,18 @@ class VisualOdometry:
         # Initialize parameters
         self.parameters = VisualOdometryParameters()
 
-    @staticmethod
-    def on_shutdown():
-        rospy.loginfo("Bye bye!")
-
-    def save_command(self, data):
-        self.joy_command = data
-
     def set_parameter(self, param_name, param_val, string_param_val):
+        """
+        Sets an inner configuration parameter
+
+        :param param_name: name of the parameter as it appears in VisualOdometryParameters
+        :type param_name: str
+        :param param_val: value of the parameter
+        :type param_val: int/float/str/array...
+        :param string_param_val: string version of the value of the parameter
+        :type string_param_val: str
+        """
+
         try:
             exec ("self.parameters." + param_name + "=" + string_param_val)
             if param_name == 'feature_extractor':
@@ -57,6 +61,13 @@ class VisualOdometry:
             raise NameError("Couldn't set parameter \'" + param_name + "\' with value: " + string_param_val, e)
 
     def initialize_extractor(self, extractor_type):
+        """
+        Initializes an openCV feature extractor
+
+        :param extractor_type: type of feature extractor ('SIFT', 'SURF', or 'ORB' expected)
+        :type extractor_type: str
+        """
+
         if extractor_type == 'SURF':
             self.cv2_detector = cv2.xfeatures2d.SURF_create()
         elif extractor_type == 'ORB':
@@ -66,15 +77,38 @@ class VisualOdometry:
         rospy.loginfo("Feature extractor initialized")
 
     def get_camera_info(self, camera_info):
+        """
+        Save intrinsic camera configuration matrices
+
+        :param camera_info: Information message on the camera
+        :type camera_info: sensor_msgs.CameraInfo
+        """
+
         self.camera_K = np.resize(camera_info.K, [3, 3])
         self.camera_D = np.asarray(camera_info.D)
 
     def get_duckiebot_velocity(self, joy_command):
+        """
+        Saves joystick command to private variables
+
+        :param joy_command: joystick command from duckiebot
+        :type joy_command: duckietown_msgs.Twist2DStamped
+        """
+
         self.joy_command = joy_command
 
     def get_image_and_trigger_vo(self, image):
+        """
+        Reads a new image, extracts its features, and flips the image vector to place it in the first position
 
-        # Read new image, extract features, and flip vector to place it in the first position
+        :param image: openCV image for visual odometry pipeline
+        :type image: openCV mat
+
+        :return: The estimated transformation between the current image and the one from last call. Returns 'None' if
+        there is no previous image
+        :rtype: geometry_msgs.TransformStamped
+        """
+
         self.images[1].load_image(image, gray_scale=True)
         self.extract_image_features(self.images[1])
         self.images = np.flip(self.images)
@@ -86,6 +120,13 @@ class VisualOdometry:
         return None
 
     def extract_image_features(self, image):
+        """
+        Extracts pairs of descriptors and keypoints from an image
+
+        :param image: image manager object containing the image whose features should be extracted
+        :type image: ImageManager
+        """
+
         parameters = self.parameters
 
         # Down-sample image
@@ -102,6 +143,14 @@ class VisualOdometry:
         rospy.logwarn("TIME: Extract features of image. Elapsed time: %s", end - start)
 
     def visual_odometry_core(self):
+        """
+        Runs pose estimation using a visual odometry pipeline assuming that images are obtained from a monocular camera
+        set on a duckiebot wondering around duckietown
+
+        :return: The estimated transformation between the current image and the one from last call.
+        :rtype: geometry_msgs.TransformStamped
+        """
+
         parameters = self.parameters
         train_image = self.images[1]
         query_image = self.images[0]

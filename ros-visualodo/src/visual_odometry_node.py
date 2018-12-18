@@ -60,6 +60,7 @@ class VisualOdometryNode:
         path_topic = rospy.get_param("~path")
         self.parameter_file_root = rospy.get_param("~yaml_root")
 
+        # Setup visual odometry pipeline parameters
         self.setup_params()
 
         # TODO: fix dtu library import(need to test it with docker and the other part running...)
@@ -96,14 +97,26 @@ class VisualOdometryNode:
         self.stacked_rotation = tf.transformations.quaternion_from_euler(0, 0, 0)
 
     def setup_params(self):
+        """
+        Reads the parameters that belong to the visual odometry pipeline and passes them to the instantiated visual
+        odometer
+        """
+
+        # Get all parameters with the parameter file root in front
         odometry_parameters = [param for param in rospy.get_param_names() if self.parameter_file_root in param]
 
         for parameter_name in odometry_parameters:
+            # Read parameter
             parameter_value = rospy.get_param(parameter_name)
+
+            # String parameters have to be treated in a special way, appending \' \' at the two sides
             s_parameter_value = ["\'" + parameter_value + "\'" if isinstance(parameter_value, basestring)
                                  else str(parameter_value)][0]
+
+            # Remove the root from the parameter name, then pass it to the visual odometer
             parameter_name = parameter_name.split(self.parameter_file_root)[1]
             self.visual_odometer.set_parameter(parameter_name, parameter_value, s_parameter_value)
+
             self.log_info(parameter_name + "=" + s_parameter_value)
 
         self.log_info("Parameters file loaded correctly")
@@ -117,12 +130,19 @@ class VisualOdometryNode:
         self.cb_image(cv_image)
 
     def cb_image(self, cv_image):
+        """
+        Runs the visual odometer with the current input image, and stacks the pose with the previously estimated poses
+
+        :param cv_image: input image for the visual odometer
+        :type cv_image: opencv mat
+        """
 
         if not self.active:
             return
 
         start = time.time()
 
+        # Run configured visual odometry with input image
         vo_transform = self.visual_odometer.get_image_and_trigger_vo(cv_image)
 
         if vo_transform is not None:
@@ -131,14 +151,12 @@ class VisualOdometryNode:
                 z_quaternion = vo_transform.transform.rotation
                 current_time = vo_transform.header.stamp
 
-                # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
                 t = TransformStamped()
                 t.header.frame_id = "world"
                 t.child_frame_id = "axis"
 
                 # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
                 t_vec = np.squeeze(qv_multiply(self.stacked_rotation, [t_vec.x, t_vec.y, t_vec.z]))
-
                 translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
                 self.stacked_position = Vector3(
                     self.stacked_position.x + translation.x,
@@ -173,10 +191,9 @@ class VisualOdometryNode:
                 pose_stamped.pose = odom.pose.pose
                 self.path.poses.append(pose_stamped)
 
-                # set the velocity
                 odom.child_frame_id = "base_link"
 
-                # publish the messages
+                # Publish the messages
                 self.odom_publisher.publish(odom)
                 self.path_publisher.publish(self.path)
 
@@ -189,13 +206,12 @@ class VisualOdometryNode:
                 raise
 
     def cv_command(self, msg):
-        # We just need to pass linear velocity
         self.visual_odometer.get_duckiebot_velocity(msg)
 
     def log_info(self, s):
         rospy.loginfo('[%s] %s' % (self.node_name, s))
 
-    def onShutdown(self):
+    def on_shutdown(self):
         self.log_info("Shutdown.")
 
     def cb_switch(self, msg):
@@ -210,5 +226,5 @@ if __name__ == '__main__':
 
     visual_odometry_node = VisualOdometryNode()
 
-    rospy.on_shutdown(visual_odometry_node.onShutdown)
+    rospy.on_shutdown(visual_odometry_node.on_shutdown)
     rospy.spin()
