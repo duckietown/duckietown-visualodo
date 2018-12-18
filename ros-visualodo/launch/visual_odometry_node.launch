@@ -1,14 +1,14 @@
 <launch>
     <arg name="veh"  doc="Name of vehicle. ex: megaman"/>
     <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
-
-    <arg name="pkg_name" value="duckietown_visualodo"/>
-    <arg name="abbr_pkg_name" value="visualodo"/>
     <arg name="node_name" default="visual_odometry_node"/>
     <arg name="path" default="path"/>
     <arg name="odometry" default="odometry"/>
-
     <arg name="_image_transport" default="compressed"/>
+
+    <arg name="pkg_name" value="duckietown_visualodo"/>
+    <arg name="abbr_pkg_name" value="visualodo"/>
+
     <group ns="$(arg abbr_pkg_name)">
         <node name="$(arg node_name)" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true" >
             <rosparam command="load" file="$(find duckietown_visualodo)/../lib-$(arg abbr_pkg_name)/src/$(arg pkg_name)/data/$(arg param_file_name).yaml"/>
