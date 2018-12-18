@@ -1,2 +1,0 @@
-#!/bin/bash
-compmake /Users/gianmarco/Documents/Duckietown/duckietown-visualodo/lib-visualodo/out-comptests/compmake -c "make $*"

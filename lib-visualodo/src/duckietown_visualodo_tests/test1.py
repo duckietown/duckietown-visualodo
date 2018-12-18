@@ -4,11 +4,6 @@ from comptests import comptest, run_module_tests, comptest_fails
 
 
 @comptest
-def test_sum1():
-    assert 0.1 + 0.2 != 0.3
-
-
-@comptest
 def test_sum2():
     np.testing.assert_almost_equal(0.1 + 0.2, 0.3)
 
