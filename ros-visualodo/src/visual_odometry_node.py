@@ -27,6 +27,8 @@ class VisualOdometryNode:
         self.bridge = CvBridge()
 
         self.active = True
+        self.FSM_mode = None
+
         self.v = 0.0
 
         # Pycharm debugging
@@ -60,7 +62,7 @@ class VisualOdometryNode:
 
         self.setup_params()
 
-        # TODO: fix dtu library import
+        # TODO: fix dtu library import(need to test it with docker and the other part running...)
         # if self.robot_name is None:
         #   self.robot_name = dtu.get_current_robot_name()
 
@@ -77,9 +79,9 @@ class VisualOdometryNode:
             raise ValueError("Invalid value for parameter ~image_transport. Should be 'raw' or 'compressed'")
         rospy.Subscriber(joystick_command_topic, Twist2DStamped, self.cv_command, queue_size=1)
 
-        # TODO: what are those?
-        # rospy.Subscriber("~switch", BoolStamped, self.cb_switch, queue_size=1)
-        # rospy.Subscriber("~fsm_mode", FSMState, self.cb_mode, queue_size=1)
+        # FSM -> to know wheter to run VO or not
+        rospy.Subscriber("~switch", BoolStamped, self.cb_switch, queue_size=1)
+        rospy.Subscriber("~fsm_mode", FSMState, self.cb_mode, queue_size=1)
 
         # Set publishers
         self.path_publisher = rospy.Publisher(path_topic, Path, queue_size=1)
@@ -115,19 +117,11 @@ class VisualOdometryNode:
         self.cb_image(cv_image)
 
     def cb_image(self, cv_image):
-        # TODO: what is this for?
-        # self.stats.received()
 
         if not self.active:
             return
 
         start = time.time()
-
-        # TODO: Start a daemon thread to run VO
-        # thread = threading.Thread(target=self.processImage,args=(image_msg,))
-        # thread.setDaemon(True)
-        # thread.start()
-        # Returns rightaway
 
         vo_transform = self.visual_odometer.get_image_and_trigger_vo(cv_image)
 
@@ -199,16 +193,15 @@ class VisualOdometryNode:
     def log_info(self, s):
         rospy.loginfo('[%s] %s' % (self.node_name, s))
 
-    def on_shutdown(self):
+    def onShutdown(self):
         self.log_info("Shutdown.")
 
     def cb_switch(self, data):
-        # TODO what goes here?
-        print('What am i for?')
+        self.active = switch_msg.data
 
     def cb_mode(self, data):
-        # TODO what goes here?
-        print('What am i for?')
+        self.FSM_mode = switch_msg.data
+
 
 
 if __name__ == '__main__':
@@ -216,6 +209,6 @@ if __name__ == '__main__':
 
     visual_odometry_node = VisualOdometryNode()
 
-    # TODO: fix on_shutdown
-    # rospy.on_shutdown(visual_odometry_node.on_shutdown())
+
+    rospy.on_shutdown(visual_odometry_node.onShutdown)
     rospy.spin()
