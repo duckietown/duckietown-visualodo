@@ -79,7 +79,7 @@ class VisualOdometryNode:
             raise ValueError("Invalid value for parameter ~image_transport. Should be 'raw' or 'compressed'")
         rospy.Subscriber(joystick_command_topic, Twist2DStamped, self.cv_command, queue_size=1)
 
-        # FSM -> to know wheter to run VO or not
+        # FSM -> to know whether to run VO or not
         rospy.Subscriber("~switch", BoolStamped, self.cb_switch, queue_size=1)
         rospy.Subscriber("~fsm_mode", FSMState, self.cb_mode, queue_size=1)
 
@@ -205,12 +205,10 @@ class VisualOdometryNode:
         self.FSM_mode = msg.data
 
 
-
 if __name__ == '__main__':
     rospy.init_node('visual_odometry_node', anonymous=False)
 
     visual_odometry_node = VisualOdometryNode()
-
 
     rospy.on_shutdown(visual_odometry_node.onShutdown)
     rospy.spin()
