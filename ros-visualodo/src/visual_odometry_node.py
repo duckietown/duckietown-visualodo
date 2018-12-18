@@ -30,20 +30,20 @@ class VisualOdometryNode:
         self.v = 0.0
 
         # Pycharm debugging
-        rospy.set_param("~veh", "maserati")
-        rospy.set_param("~camera_topic", "/maserati/camera_node/image")
-        rospy.set_param("~image_transport", "compressed")
-        rospy.set_param("~joy_topic", "/maserati/joy_mapper_node/car_cmd")
-        rospy.set_param("~camera_info_topic", "/maserati/camera_node/camera_info")
-        rospy.set_param("~path", "path")
-        rospy.set_param("~odometry", "odometry")
-        rospy.set_param("~yaml_root", "/visualodo/visual_odometry_node/parameters/")
-        from rosparam import upload_params
-        from yaml import load
-        f = open("../../lib-visualodo/src/duckietown_visualodo/data/default.yaml", 'r')
-        yamlfile = load(f)
-        f.close()
-        upload_params("/visualodo/visual_odometry_node/", yamlfile)
+        # rospy.set_param("~veh", "maserati")
+        # rospy.set_param("~camera_topic", "/maserati/camera_node/image")
+        # rospy.set_param("~image_transport", "compressed")
+        # rospy.set_param("~joy_topic", "/maserati/joy_mapper_node/car_cmd")
+        # rospy.set_param("~camera_info_topic", "/maserati/camera_node/camera_info")
+        # rospy.set_param("~path", "path")
+        # rospy.set_param("~odometry", "odometry")
+        # rospy.set_param("~yaml_root", "/visualodo/visual_odometry_node/parameters/")
+        # from rosparam import upload_params
+        # from yaml import load
+        # f = open("../../lib-visualodo/src/duckietown_visualodo/data/default.yaml", 'r')
+        # yamlfile = load(f)
+        # f.close()
+        # upload_params("/visualodo/visual_odometry_node/", yamlfile)
 
         self.visual_odometer = VisualOdometry()
 
@@ -131,66 +131,68 @@ class VisualOdometryNode:
 
         vo_transform = self.visual_odometer.get_image_and_trigger_vo(cv_image)
 
-        try:
-            t_vec = vo_transform.translation
-            z_quaternion = vo_transform.transform.rotation
-            current_time = vo_transform.header.stamp
+        if vo_transform is not None:
+            try:
+                t_vec = vo_transform.transform.translation
+                z_quaternion = vo_transform.transform.rotation
+                current_time = vo_transform.header.stamp
 
-            # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
-            t = TransformStamped()
-            t.header.frame_id = "world"
-            t.child_frame_id = "axis"
+                # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
+                t = TransformStamped()
+                t.header.frame_id = "world"
+                t.child_frame_id = "axis"
 
-            # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
-            t_vec = np.squeeze(qv_multiply(self.stacked_rotation, t_vec))
+                # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
+                t_vec = np.squeeze(qv_multiply(self.stacked_rotation, [t_vec.x, t_vec.y, t_vec.z]))
 
-            translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
-            self.stacked_position = Vector3(
-                self.stacked_position.x + translation.x,
-                self.stacked_position.y + translation.y,
-                self.stacked_position.z + translation.z)
+                translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
+                self.stacked_position = Vector3(
+                    self.stacked_position.x + translation.x,
+                    self.stacked_position.y + translation.y,
+                    self.stacked_position.z + translation.z)
 
-            # Add quaternion rotation to stacked rotation to obtain the rotation transformation between world and
-            # duckiebot frames
-            quaternion = tf.transformations.quaternion_multiply(self.stacked_rotation, z_quaternion)
+                # Add quaternion rotation to stacked rotation to obtain the rotation transformation between world and
+                # duckiebot frames
+                quaternion = tf.transformations.quaternion_multiply(
+                    self.stacked_rotation, [z_quaternion.x, z_quaternion.y, z_quaternion.z, z_quaternion.w])
 
-            # Store quaternion and transform it to geometry message
-            self.stacked_rotation = quaternion
-            quaternion = Quaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+                # Store quaternion and transform it to geometry message
+                self.stacked_rotation = quaternion
+                quaternion = Quaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
 
-            # Broadcast transform
-            t.transform.translation = self.stacked_position
-            t.transform.rotation = quaternion
-            self.transform_broadcaster.sendTransform(t)
+                # Broadcast transform
+                t.transform.translation = self.stacked_position
+                t.transform.rotation = quaternion
+                self.transform_broadcaster.sendTransform(t)
 
-            # Create odometry and Path msgs
-            odom = Odometry()
-            odom.header.stamp = current_time
-            odom.header.frame_id = "world"
+                # Create odometry and Path msgs
+                odom = Odometry()
+                odom.header.stamp = current_time
+                odom.header.frame_id = "world"
 
-            self.path.header = odom.header
+                self.path.header = odom.header
 
-            # Set the position
-            odom.pose.pose = Pose(self.stacked_position, quaternion)
-            pose_stamped = PoseStamped()
-            pose_stamped.header = odom.header
-            pose_stamped.pose = odom.pose.pose
-            self.path.poses.append(pose_stamped)
+                # Set the position
+                odom.pose.pose = Pose(self.stacked_position, quaternion)
+                pose_stamped = PoseStamped()
+                pose_stamped.header = odom.header
+                pose_stamped.pose = odom.pose.pose
+                self.path.poses.append(pose_stamped)
 
-            # set the velocity
-            odom.child_frame_id = "base_link"
+                # set the velocity
+                odom.child_frame_id = "base_link"
 
-            # publish the messages
-            self.odom_publisher.publish(odom)
-            self.path_publisher.publish(self.path)
+                # publish the messages
+                self.odom_publisher.publish(odom)
+                self.path_publisher.publish(self.path)
 
-            rospy.logwarn("TIME: Total time: %s", time.time() - start)
-            rospy.logwarn("===================================================")
+                rospy.logwarn("TIME: Total time: %s", time.time() - start)
+                rospy.logwarn("===================================================")
 
-        except AssertionError as e:
-            rospy.logwarn("Error in estimated rotation matrix")
-            rospy.logerr(e)
-            raise
+            except AssertionError as e:
+                rospy.logwarn("Error in estimated rotation matrix")
+                rospy.logerr(e)
+                raise
 
     def cv_command(self, msg):
         # We just need to pass linear velocity

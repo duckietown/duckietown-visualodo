@@ -50,7 +50,7 @@ class VisualOdometry:
 
     def set_parameter(self, param_name, param_val, string_param_val):
         try:
-            exec ("self.parameters." + param_name + "=" + str(param_val))
+            exec ("self.parameters." + param_name + "=" + string_param_val)
             if param_name == 'feature_extractor':
                 self.initialize_extractor(param_val)
         except Exception as e:
