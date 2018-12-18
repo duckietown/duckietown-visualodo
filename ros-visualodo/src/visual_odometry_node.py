@@ -100,11 +100,11 @@ class VisualOdometryNode:
 
         for parameter_name in odometry_parameters:
             parameter_value = rospy.get_param(parameter_name)
-            parameter_value = ["\'" + parameter_value + "\'" if isinstance(parameter_value, basestring)
-                               else str(parameter_value)][0]
+            s_parameter_value = ["\'" + parameter_value + "\'" if isinstance(parameter_value, basestring)
+                                 else str(parameter_value)][0]
             parameter_name = parameter_name.split(self.parameter_file_root)[1]
-            self.visual_odometer.set_parameter(parameter_name, parameter_value)
-            self.log_info(parameter_name + "=" + parameter_value)
+            self.visual_odometer.set_parameter(parameter_name, parameter_value, s_parameter_value)
+            self.log_info(parameter_name + "=" + s_parameter_value)
 
         self.log_info("Parameters file loaded correctly")
 
