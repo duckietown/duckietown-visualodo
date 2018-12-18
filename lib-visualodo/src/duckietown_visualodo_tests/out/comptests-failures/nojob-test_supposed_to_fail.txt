@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/gianmarco/.local/share/virtualenvs/duckietown-visualodo-xUfzVye8/local/lib/python2.7/site-packages/comptests/registrar.py", line 84, in check_fails
+    f(*args, **kwargs)
+  File "test-utils.py", line 23, in test_supposed_to_fail
+    raise Exception()
+Exception

@@ -1,7 +1,7 @@
 # coding=utf-8
 import numpy as np
 from comptests import comptest, run_module_tests, comptest_fails
-from duckietown_visualodo.utils import second_largest
+from duckietown_visualodo.algo.utils import second_largest
 
 
 
