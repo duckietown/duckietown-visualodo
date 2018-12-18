@@ -186,8 +186,8 @@ class VisualOdometry:
                                self.camera_D, (h, w), (parameters.shrink_x_ratio, parameters.shrink_y_ratio))
             match_distance_filter.split_by_distance_mask(stingray_mask)
 
-            if parameters.plot_matches:
-                processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
+            #if parameters.plot_matches:
+            #    processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
 
             n_distant_matches = len(match_distance_filter.rectified_distant_query_points)
             if n_distant_matches > 0:
@@ -213,10 +213,15 @@ class VisualOdometry:
                             rot_hypothesis.append(rot_h)
 
                 rot_hypothesis = np.unique(rot_hypothesis)
-                rot_hypothesis_rmse = np.zeros((len(rot_hypothesis), 1))
+                rot_hypothesis_inliers = np.zeros((len(rot_hypothesis), 1))
+
+                num_iters = 100
+                rmse_threshold = 0.007
+
+                start = time.time()
 
                 # Select the best hypothesis using 1 point RANSAC
-                for hypothesis_index in range(0, len(rot_hypothesis)):
+                for hypothesis_index in np.random.randint(0, len(rot_hypothesis), num_iters):
                     hypothesis = rot_hypothesis[hypothesis_index]
                     rot_mat = np.array([[np.cos(hypothesis), 0, np.sin(hypothesis)],
                                         [0, 1, 0],
@@ -230,10 +235,11 @@ class VisualOdometry:
                     # Calculate rmse of hypothesis with all peripheral points
                     error = rotated_train_points[:, 0:2] - np.reshape(
                         match_distance_filter.rectified_distant_query_points, (n_distant_matches, 2))
+                    rmse = pow(np.sum(pow(error, 2), axis=1), 0.5)
 
-                    rot_hypothesis_rmse[hypothesis_index] = np.sum(np.sqrt(np.sum(np.power(error, 2), axis=1)))
+                    rot_hypothesis_inliers[hypothesis_index] = sum(rmse < rmse_threshold)
 
-                theta = rot_hypothesis[np.argmin(rot_hypothesis_rmse)]
+                theta = rot_hypothesis[np.argmax(rot_hypothesis_inliers)]
                 self.last_theta = theta
 
             else:
