@@ -4,7 +4,7 @@ all:
 bump-upload:
 	$(MAKE) bump
 	$(MAKE) upload
-	
+
 bump:
 	bumpversion patch
 
@@ -20,7 +20,7 @@ comptest_package=duckietown_visualodo_tests
 out=out-comptests
 coverage_dir=out-coverage
 coverage_include='*src/duckietown_visualodo*'
-coveralls_repo_token=LEAVE-FOR-NOW-THEN-ASK-TA
+coveralls_repo_token=fCFHGApGowdHAyqfZSPVK8J3sF2XT1JJc
 coverage_run=coverage run
 
 tests-clean:
