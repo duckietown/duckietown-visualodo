@@ -1,5 +1,14 @@
 *.pyc
 .idea/*
+lib-visualodo/*egg-info
+lib-visualodo/dist
+lib-visualodo/out-*
+lib-visualodo/*.json.out
+lib-visualodo/.coverage
+lib-visualodo/.coverage.*
+lib-visualodo/.ipynb_checkpoints
+lib-visualodo/.compmake_history.txt
+lib-visualodo/testing-cookies/lib-*
 *egg-info
 dist
 out-*
