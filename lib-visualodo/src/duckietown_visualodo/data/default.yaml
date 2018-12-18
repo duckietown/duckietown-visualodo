@@ -15,8 +15,9 @@ parameters:
   shrink_y_ratio: 0.5
 
   # Pipeline debugging plots
-  plot_matches: True
+  plot_masking: True
   plot_histogram_filtering: False
+  plot_ransac: False
 
   # Feature extraction algorithm. Options: 'ORB', 'SURF', 'SIFT'
   feature_extractor: "ORB"

@@ -31,7 +31,7 @@ class VisualOdometryNode:
 
         self.v = 0.0
 
-        # Pycharm debugging
+        # Uncomment for code debugging
         # rospy.set_param("~veh", "maserati")
         # rospy.set_param("~camera_topic", "/maserati/camera_node/image")
         # rospy.set_param("~image_transport", "compressed")
