@@ -16,5 +16,4 @@ opencv-python==3.4.3.18
 numpy==1.15.4
 scipy==1.0.1
 matplotlib==2.2.2
-cv_bridge==1.12.8
-
+cv_bridge==1.13
