@@ -1,5 +1,0 @@
-<launch>
-	<group ns="visual_odometry">
-		<node name="visual_odometry" pkg="duckietown_visualodo" type="main_node.py" />
-	</group>
-</launch>

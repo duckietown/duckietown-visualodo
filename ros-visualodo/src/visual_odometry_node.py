@@ -27,7 +27,7 @@ class VisualOdometryNode:
         self.bridge = CvBridge()
 
         self.active = True
-        self.FSM_mode = None
+        self.FSM_mode = None
 
         self.v = 0.0
 
