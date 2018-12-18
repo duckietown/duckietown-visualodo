@@ -115,7 +115,7 @@ class VisualOdometry:
         #                MAIN BODY                 #
         ############################################
 
-        processed_data_plotter = DataPlotter(train_image, query_image)
+        processed_data_plotter = DataPlotter(train_image, query_image, parameters)
 
         # Instantiate histogram logic filter
         histogram_filter = HistogramLogicFilter(train_image.width, train_image.height)
@@ -196,7 +196,7 @@ class VisualOdometry:
             end = time.time()
             rospy.logwarn("TIME: Mask filtering done. Elapsed time: %s", end - start)
 
-            if parameters.plot_matches:
+            if parameters.plot_masking:
                 processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
 
             start = time.time()
@@ -279,18 +279,19 @@ class VisualOdometry:
 
 class VisualOdometryParameters:
     def __init__(self):
-        self.threshold_angle = 0
-        self.threshold_length = 0
+        self.filter_by_histogram = False
+        self.threshold_angle = 10
+        self.threshold_length = 10
 
-        self.shrink_x_ratio = 0
-        self.shrink_y_ratio = 0
+        self.shrink_x_ratio = 1.0
+        self.shrink_y_ratio = 1.0
 
-        self.plot_matches = False
+        self.plot_masking = False
         self.plot_histogram_filtering = False
+        self.plot_ransac = False
 
         self.feature_extractor = 'ORB'
-        self.matcher = 'BF'
-        self.knn_neighbors = 0
-        self.filter_by_histogram = False
 
+        self.matcher = 'BF'
+        self.knn_neighbors = 2
         self.knn_weight = [1.5]
