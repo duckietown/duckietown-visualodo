@@ -198,11 +198,11 @@ class VisualOdometryNode:
     def onShutdown(self):
         self.log_info("Shutdown.")
 
-    def cb_switch(self, data):
-        self.active = switch_msg.data
+    def cb_switch(self, msg):
+        self.active = msg.data
 
-    def cb_mode(self, data):
-        self.FSM_mode = switch_msg.data
+    def cb_mode(self, msg):
+        self.FSM_mode = msg.data
 
 
 
