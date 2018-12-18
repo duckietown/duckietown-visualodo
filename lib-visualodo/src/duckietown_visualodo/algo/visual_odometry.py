@@ -5,7 +5,7 @@ from __future__ import division
 import time
 import cv2
 import numpy as np
-import rospy
+
 import tf.transformations
 
 from cv_bridge import CvBridge
@@ -35,7 +35,7 @@ class VisualOdometry:
         # Initiate the feature detector
         self.cv2_detector = None
 
-        self.last_ros_time = rospy.get_time()
+        self.last_ros_time = time.time()
         self.last_theta = 0
 
         # Initialize parameters
@@ -74,7 +74,7 @@ class VisualOdometry:
             self.cv2_detector = cv2.ORB_create(nfeatures=80)
         else:
             self.cv2_detector = cv2.xfeatures2d.SIFT_create()
-        rospy.loginfo("Feature extractor initialized")
+        print("Feature extractor initialized")
 
     def get_camera_info(self, camera_info):
         """
@@ -116,7 +116,7 @@ class VisualOdometry:
         if self.images[1].height > 0:
             return self.visual_odometry_core()
 
-        self.last_ros_time = rospy.get_time()
+        self.last_ros_time = time.time()
         return None
 
     def extract_image_features(self, image):
@@ -133,14 +133,14 @@ class VisualOdometry:
         start = time.time()
         image.downsample(parameters.shrink_x_ratio, parameters.shrink_y_ratio)
         end = time.time()
-        rospy.logwarn("TIME: Down-sample image. Elapsed time: %s", end - start)
+        print("TIME: Down-sample image. Elapsed time: %s", end - start)
 
         # Find the key points and descriptors for train image
         start = time.time()
         image.find_keypoints(self.cv2_detector)
-        rospy.logwarn("Number or keypoints: %s", len(image.keypoints))
+        print("Number or keypoints: %s", len(image.keypoints))
         end = time.time()
-        rospy.logwarn("TIME: Extract features of image. Elapsed time: %s", end - start)
+        print("TIME: Extract features of image. Elapsed time: %s", end - start)
 
     def visual_odometry_core(self):
         """
@@ -179,7 +179,7 @@ class VisualOdometry:
             bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
             matches = bf.match(train_image.descriptors, query_image.descriptors)
         end = time.time()
-        rospy.logwarn("TIME: Matching done. Elapsed time: %s", end - start)
+        print("TIME: Matching done. Elapsed time: %s", end - start)
 
         # Initialize fitness trackers
         fitness = float('-inf')
@@ -193,7 +193,7 @@ class VisualOdometry:
                 start = time.time()
                 matches = knn_match_filter(matches, weight)
                 end = time.time()
-                rospy.logwarn("TIME: Distance filtering of matches done. Elapsed time: %s", end - start)
+                print("TIME: Distance filtering of matches done. Elapsed time: %s", end - start)
 
             # Filter histograms by gaussian function fitting
             if parameters.filter_by_histogram:
@@ -202,7 +202,7 @@ class VisualOdometry:
                     matches, train_image.keypoints, query_image.keypoints, parameters.threshold_angle,
                     parameters.threshold_length)
                 end = time.time()
-                rospy.logwarn("TIME: Histogram filtering done. Elapsed time: %s", end - start)
+                print("TIME: Histogram filtering done. Elapsed time: %s", end - start)
 
                 fitness = histogram_filter.angle_fitness + histogram_filter.length_fitness
 
@@ -243,7 +243,7 @@ class VisualOdometry:
             match_distance_filter.split_by_distance_mask(stingray_mask)
 
             end = time.time()
-            rospy.logwarn("TIME: Mask filtering done. Elapsed time: %s", end - start)
+            print("TIME: Mask filtering done. Elapsed time: %s", end - start)
 
             if parameters.plot_masking:
                 processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
@@ -309,7 +309,7 @@ class VisualOdometry:
             z_quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
 
             end = time.time()
-            rospy.logwarn("TIME: Pose estimation done. Elapsed time: %s", end - start)
+            print("TIME: Pose estimation done. Elapsed time: %s", end - start)
 
             current_time = rospy.Time.now()
 
@@ -320,7 +320,7 @@ class VisualOdometry:
 
         except Exception as e:
             rospy.logerr(e)
-            rospy.logwarn("Not enough matches for RANSAC homography")
+            print("Not enough matches for RANSAC homography")
             raise
 
         return t
