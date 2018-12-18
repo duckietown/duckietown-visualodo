@@ -6,26 +6,22 @@ import time
 import cv2
 import numpy as np
 import rospy
-import tf2_ros as tf2
 import tf.transformations
 
-from math import isnan
 from cv_bridge import CvBridge
 
 from data_plotter import DataPlotter
 from match_filters import HistogramLogicFilter, DistanceFilter
-from utils import knn_match_filter, rotation_matrix_to_euler_angles, qv_multiply, create_geometric_mask
+from utils import knn_match_filter, rotation_matrix_to_euler_angles, create_geometric_mask
 from image_manager import ImageManager
 
-from geometry_msgs.msg import Vector3, Quaternion, Pose, TransformStamped, Twist, PoseStamped
-from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import Vector3, Quaternion, TransformStamped
 
 from duckietown_msgs.msg import Twist2DStamped
 
 
 class VisualOdometry:
-    def __init__(self, parameters):
-        self.parameters = parameters
+    def __init__(self):
         self.images = np.array([ImageManager(), ImageManager()])
         self.bridge = CvBridge()
 
@@ -33,55 +29,104 @@ class VisualOdometry:
         self.camera_K = None
         self.camera_D = None
 
-        # Ros stuff
-        self.path_publisher = rospy.Publisher("path", Path, queue_size=2)
-        self.odom_publisher = rospy.Publisher("odometry", Odometry, queue_size=2)
-        self.transform_broadcaster = tf2.TransformBroadcaster()
-
-        # Transformation from world to duckiebot frame
-        self.path = Path()
-        self.stacked_position = Vector3(0, 0, 0)
-        self.stacked_rotation = tf.transformations.quaternion_from_euler(0, 0, 0)
-
         # Current command sent to duckiebot
         self.joy_command = Twist2DStamped()
+
+        # Initiate the feature detector
+        self.cv2_detector = None
 
         self.last_ros_time = rospy.get_time()
         self.last_theta = 0
 
-        # Initiate the feature detector
-        if parameters.feature_extractor == 'SURF':
+        # Initialize parameters
+        self.parameters = VisualOdometryParameters()
+
+    def set_parameter(self, param_name, param_val, string_param_val):
+        """
+        Sets an inner configuration parameter
+
+        :param param_name: name of the parameter as it appears in VisualOdometryParameters
+        :type param_name: str
+        :param param_val: value of the parameter
+        :type param_val: int/float/str/array...
+        :param string_param_val: string version of the value of the parameter
+        :type string_param_val: str
+        """
+
+        try:
+            exec ("self.parameters." + param_name + "=" + string_param_val)
+            if param_name == 'feature_extractor':
+                self.initialize_extractor(param_val)
+        except Exception as e:
+            raise NameError("Couldn't set parameter \'" + param_name + "\' with value: " + string_param_val, e)
+
+    def initialize_extractor(self, extractor_type):
+        """
+        Initializes an openCV feature extractor
+
+        :param extractor_type: type of feature extractor ('SIFT', 'SURF', or 'ORB' expected)
+        :type extractor_type: str
+        """
+
+        if extractor_type == 'SURF':
             self.cv2_detector = cv2.xfeatures2d.SURF_create()
-        elif parameters.feature_extractor == 'ORB':
+        elif extractor_type == 'ORB':
             self.cv2_detector = cv2.ORB_create(nfeatures=80)
         else:
             self.cv2_detector = cv2.xfeatures2d.SIFT_create()
+        rospy.loginfo("Feature extractor initialized")
 
-    def save_command(self, data):
-        self.joy_command = data
+    def get_camera_info(self, camera_info):
+        """
+        Save intrinsic camera configuration matrices
 
-    def save_camera_calibration(self, data):
-        self.camera_K = np.resize(data.K, [3, 3])
-        self.camera_D = np.asarray(data.D)
+        :param camera_info: Information message on the camera
+        :type camera_info: sensor_msgs.CameraInfo
+        """
 
-    def save_image_and_trigger_vo(self, data):
-        start = time.time()
-        cv_image = self.bridge.compressed_imgmsg_to_cv2(data)
+        self.camera_K = np.resize(camera_info.K, [3, 3])
+        self.camera_D = np.asarray(camera_info.D)
 
-        # Read new image, extract features, and flip vector to place it in the first position
-        self.images[1].load_image(cv_image, gray_scale=True)
+    def get_duckiebot_velocity(self, joy_command):
+        """
+        Saves joystick command to private variables
+
+        :param joy_command: joystick command from duckiebot
+        :type joy_command: duckietown_msgs.Twist2DStamped
+        """
+
+        self.joy_command = joy_command
+
+    def get_image_and_trigger_vo(self, image):
+        """
+        Reads a new image, extracts its features, and flips the image vector to place it in the first position
+
+        :param image: openCV image for visual odometry pipeline
+        :type image: openCV mat
+
+        :return: The estimated transformation between the current image and the one from last call. Returns 'None' if
+        there is no previous image
+        :rtype: geometry_msgs.TransformStamped
+        """
+
+        self.images[1].load_image(image, gray_scale=True)
         self.extract_image_features(self.images[1])
         self.images = np.flip(self.images)
 
         if self.images[1].height > 0:
-            self.visual_odometry_core()
+            return self.visual_odometry_core()
 
         self.last_ros_time = rospy.get_time()
-
-        rospy.logwarn("TIME: Total time: %s", time.time() - start)
-        rospy.logwarn("===================================================")
+        return None
 
     def extract_image_features(self, image):
+        """
+        Extracts pairs of descriptors and keypoints from an image
+
+        :param image: image manager object containing the image whose features should be extracted
+        :type image: ImageManager
+        """
+
         parameters = self.parameters
 
         # Down-sample image
@@ -98,16 +143,28 @@ class VisualOdometry:
         rospy.logwarn("TIME: Extract features of image. Elapsed time: %s", end - start)
 
     def visual_odometry_core(self):
+        """
+        Runs pose estimation using a visual odometry pipeline assuming that images are obtained from a monocular camera
+        set on a duckiebot wondering around duckietown
+
+        :return: The estimated transformation between the current image and the one from last call.
+        :rtype: geometry_msgs.TransformStamped
+        """
 
         parameters = self.parameters
         train_image = self.images[1]
         query_image = self.images[0]
 
+        # Initialize transformation between camera frames
+        t = TransformStamped()
+        t.header.frame_id = "train_pose"
+        t.child_frame_id = "query_pose"
+
         ############################################
         #                MAIN BODY                 #
         ############################################
 
-        processed_data_plotter = DataPlotter(train_image, query_image)
+        processed_data_plotter = DataPlotter(train_image, query_image, parameters)
 
         # Instantiate histogram logic filter
         histogram_filter = HistogramLogicFilter(train_image.width, train_image.height)
@@ -127,7 +184,6 @@ class VisualOdometry:
         # Initialize fitness trackers
         fitness = float('-inf')
         max_fit = fitness
-        max_weight = parameters.knn_weight[0]
 
         # Explore all the weight values
         for weight in parameters.knn_weight:
@@ -143,7 +199,8 @@ class VisualOdometry:
             if parameters.filter_by_histogram:
                 start = time.time()
                 histogram_filter.filter_matches_by_histogram_fitting(
-                    matches, train_image.keypoints, query_image.keypoints, parameters.angle_th, parameters.length_th)
+                    matches, train_image.keypoints, query_image.keypoints, parameters.threshold_angle,
+                    parameters.threshold_length)
                 end = time.time()
                 rospy.logwarn("TIME: Histogram filtering done. Elapsed time: %s", end - start)
 
@@ -153,7 +210,6 @@ class VisualOdometry:
                 if fitness > max_fit:
                     histogram_filter.save_configuration()
                     max_fit = fitness
-                    max_weight = weight
 
         # Recover best configuration from histogram filtering (for best weight)
         if parameters.filter_by_histogram and histogram_filter.saved_configuration is not None:
@@ -162,8 +218,7 @@ class VisualOdometry:
 
             # Publish the results of histogram filtering
             if parameters.plot_histogram_filtering:
-                processed_data_plotter.plot_histogram_filtering(
-                    unfiltered_matches, matches, histogram_filter, max_weight, max_fit)
+                processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
 
         n_final_matches = len(matches)
 
@@ -177,6 +232,7 @@ class VisualOdometry:
         try:
             [h, w] = [query_image.height, query_image.width]
 
+            start = time.time()
             # Split between far-region and close region matches
             # TODO: improve mask -> make it a function of intrinsic camera calibration / estimated depth
             mask_params = [0.5, 0.7, 0.4]
@@ -186,9 +242,13 @@ class VisualOdometry:
                                self.camera_D, (h, w), (parameters.shrink_x_ratio, parameters.shrink_y_ratio))
             match_distance_filter.split_by_distance_mask(stingray_mask)
 
-            if parameters.plot_matches:
+            end = time.time()
+            rospy.logwarn("TIME: Mask filtering done. Elapsed time: %s", end - start)
+
+            if parameters.plot_masking:
                 processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
 
+            start = time.time()
             n_distant_matches = len(match_distance_filter.rectified_distant_query_points)
             if n_distant_matches > 0:
                 rot_hypothesis = []
@@ -244,172 +304,43 @@ class VisualOdometry:
 
             t_vec = [self.joy_command.v / 30.0, 0, 0]
 
-            """
-            n_proximal_matches = n_final_matches - n_distant_matches
-            t_hypothesis = []
-
-            y_rot_mat = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-np.sin(theta), 0, np.cos(theta)]])
-            # Estimate translation vector
-            for proximal_q_p, proximal_t_p in \
-                    zip(match_distance_filter.norm_close_query_points, match_distance_filter.norm_close_train_points):
-                proximal_q_p = np.matmul(np.transpose(z_rot_mat), np.append([proximal_q_p], [1]))
-
-                ty = (proximal_t_p[1] - proximal_q_p[1]) * self.joy_command.v
-                tx = (proximal_t_p[0] - proximal_q_p[0]) * self.joy_command.v
-
-                t_hypothesis.append(np.matmul(np.transpose(y_rot_mat), [tx, ty, 0]))
-
-            t_hypothesis = np.unique(t_hypothesis, axis=0)
-            t_hypothesis_rmse = np.zeros((len(t_hypothesis), 1))
-
-            # Select the best hypothesis using 1 point RANSAC
-            for hypothesis_index in range(0, len(t_hypothesis)):
-                t_vec_hyp = t_hypothesis[hypothesis_index]
-
-                h_matrix = np.append(y_rot_mat, np.expand_dims(t_vec_hyp.T, axis=1), axis=1)
-                h_matrix = np.append(h_matrix, np.expand_dims(np.array([0, 0, 0, 1]).T, axis=0), axis=0)
-
-                transformed_train_points = np.matmul(
-                    np.append(np.reshape(match_distance_filter.norm_close_train_points, (n_proximal_matches, 2)),
-                              np.ones((n_proximal_matches, 2)), axis=1),
-                    h_matrix)
-
-                # Calculate rmse of hypothesis with all peripheral points
-                error = transformed_train_points[:, 0:2] - np.reshape(
-                    match_distance_filter.norm_close_query_points, (n_proximal_matches, 2))
-                t_hypothesis_rmse[hypothesis_index] = np.sum(np.sqrt(np.sum(np.power(error, 2), axis=1)))
-
-            # t_vec = t_hypothesis[np.argmin(t_hypothesis_rmse)]
-            """
-
-            """
-            # Extract essential matrix
-            start = time.time()
-            [h_matrix, mask] = cv2.findEssentialMat(np.array(matched_train_points, dtype=float),
-                                                    np.array(matched_query_points, dtype=float), self.camera_K,
-                                                    method=cv2.RANSAC, prob=0.999, threshold=1.0)
-
-            # Remove RANSAC outliers
-            matched_query_points = np.reshape(
-                np.array(matched_query_points, dtype=float)[mask * np.ones([1, 2]) == 1], [-1, 2])
-            matched_train_points = np.reshape(
-                np.array(matched_train_points, dtype=float)[mask * np.ones([1, 2]) == 1], [-1, 2])
-
-            rot_sign = np.sign(np.average(matched_query_points - matched_train_points, axis=0)[0])
-
-            # Stream points used for essential matrix calculation for debugging
-            if parameters.plot_matches:
-                processed_data_plotter.plot_point_correspondences(
-                    distant_query_matches, distant_train_matches, proximity_mask)
-                    #matched_train_points, matched_query_points, proximity_mask)
-
-            # If no displacement has occurred in any of the points, assume that rotation and translation were 0
-            if not any((matched_train_points - matched_query_points != np.zeros(matched_train_points.shape)).ravel()):
-                rot_mat = np.eye(3)
-                t_vec = np.array([0, 0, 0], dtype=float)
-                rot_mag = 0
-
-            else:
-                # Recover rotation and translation from essential matrix
-                [_, rot_mat, t_vec, _] = \
-                    cv2.recoverPose(h_matrix, matched_train_points, matched_query_points, self.camera_K)
-
-                rot_mag = ((np.trace(rot_mat) - 1) / 2)
-
-                if rot_mag < 0:
-                    rot_mag = np.arccos(max([rot_mag, -1.0]))
-                else:
-                    rot_mag = np.arccos(min([rot_mag, 1.0]))
-
-                # If rotation modulus is superior than 45 degrees, suppress it
-                if rot_mag > np.pi/8:
-                    rot_mat = np.eye(3)
-                    t_vec = np.array([0, 0, 1], dtype=float)
-                    rot_mag = 0
-
-            rot_mag *= rot_sign
-
-            # Remap the rotation onto the Z plane
-            z_rot_mat = np.array([[np.cos(rot_mag), -np.sin(rot_mag), 0],
-                                 [np.sin(rot_mag), np.cos(rot_mag), 0],
-                                 [0, 0, 1]])
-
-            # Calculate euler rotation from matrix, and quaternion from euler rotation
-            [roll, pitch, yaw] = rotation_matrix_to_euler_angles(rot_mat)
-            quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
-            """
-
             # Calculate quaternion of z-mapped rotation
             [roll, pitch, yaw] = rotation_matrix_to_euler_angles(z_rot_mat)
             z_quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
 
-            # t_q = (z_quaternion * np.multiply(quaternion, [-1, -1, -1, 1]))
-            # t_q = t_q / (np.sqrt(t_q[0]**2 + t_q[1]**2 + t_q[2]**2 + t_q[3]**2))
-            # t_vec = np.multiply(qv_multiply(t_q, t_vec), np.array([1, 0, 0], dtype=float))
+            end = time.time()
+            rospy.logwarn("TIME: Pose estimation done. Elapsed time: %s", end - start)
 
             current_time = rospy.Time.now()
 
-            # If velocity command is 0, set displacement to 0
-            if abs(self.joy_command.v) < 0.01:
-                t_vec = np.array([0.0, 0.0, 0.0], dtype=float)
-
-            # t_vec = np.multiply(np.squeeze(t_vec), np.array([1, 0, 0]))
-            t = TransformStamped()
-            t.header.frame_id = "world"
-            t.child_frame_id = "axis"
             t.header.stamp = current_time
 
-            # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
-            t_vec = np.squeeze(qv_multiply(self.stacked_rotation, t_vec))
+            t.transform.translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
+            t.transform.rotation = Quaternion(z_quaternion[0], z_quaternion[1], z_quaternion[2], z_quaternion[3])
 
-            translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
-            self.stacked_position = Vector3(
-                self.stacked_position.x + translation.x,
-                self.stacked_position.y + translation.y,
-                self.stacked_position.z + translation.z)
-
-            # Add quaternion rotation to stacked rotation to obtain the rotation transformation between world and
-            # duckiebot frames
-            quaternion = tf.transformations.quaternion_multiply(self.stacked_rotation, z_quaternion)
-
-            # Store quaternion and transform it to geometry message
-            self.stacked_rotation = quaternion
-            quaternion = Quaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-
-            # Broadcast transform
-            t.transform.translation = self.stacked_position
-            t.transform.rotation = quaternion
-            self.transform_broadcaster.sendTransform(t)
-
-            # Create odometry and Path msgs
-            odom = Odometry()
-            odom.header.stamp = current_time
-            odom.header.frame_id = "world"
-
-            self.path.header = odom.header
-
-            # set the position
-            odom.pose.pose = Pose(self.stacked_position, quaternion)
-            pose_stamped = PoseStamped()
-            pose_stamped.header = odom.header
-            pose_stamped.pose = odom.pose.pose
-            self.path.poses.append(pose_stamped)
-
-            # set the velocity
-            odom.child_frame_id = "base_link"
-            odom.twist.twist = Twist(Vector3(self.joy_command.v, 0, 0), Vector3(0, 0, self.joy_command.omega))
-
-            # publish the messages
-            self.odom_publisher.publish(odom)
-            self.path_publisher.publish(self.path)
-
-            end = time.time()
-            rospy.logwarn("TIME: RANSAC homography done. Elapsed time: %s", end - start)
-
-        except AssertionError as e:
-            rospy.logerr(e)
-            raise
         except Exception as e:
             rospy.logerr(e)
             rospy.logwarn("Not enough matches for RANSAC homography")
             raise
+
+        return t
+
+
+class VisualOdometryParameters:
+    def __init__(self):
+        self.filter_by_histogram = False
+        self.threshold_angle = 10
+        self.threshold_length = 10
+
+        self.shrink_x_ratio = 1.0
+        self.shrink_y_ratio = 1.0
+
+        self.plot_masking = False
+        self.plot_histogram_filtering = False
+        self.plot_ransac = False
+
+        self.feature_extractor = 'ORB'
+
+        self.matcher = 'BF'
+        self.knn_neighbors = 2
+        self.knn_weight = [1.5]

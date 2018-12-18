@@ -17,15 +17,19 @@ from utils import gauss
 
 class DataPlotter:
 
-    def __init__(self, train_image, query_image):
+    def __init__(self, train_image, query_image, parameters):
         self.train_image_manager = train_image
         self.query_image_manager = query_image
         self.image_bridge = CvBridge()
-        self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=2)
-        self.histogram_filter_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=2)
-        self.match_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=2)
 
-    def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter, weight, fitness):
+        if parameters.plot_ransac:
+            self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=2)
+        if parameters.plot_histogram_filtering:
+            self.histogram_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=2)
+        if parameters.plot_masking:
+            self.mask_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=2)
+
+    def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter):
         """
         Plots the result of the match histogram filtering
 
@@ -35,10 +39,6 @@ class DataPlotter:
         :type best_matches: ndarray (nx2)
         :param histogram_filter: histogram filtering object
         :type histogram_filter: HistogramLogicFilter
-        :param weight: used weight for histogram filtering
-        :type weight: float
-        :param fitness: final fitness of the histogram filtering for given weight
-        :type fitness: float
         """
 
         img1 = self.train_image_manager.image
@@ -85,7 +85,7 @@ class DataPlotter:
         final_img = self.resize_image_aspect_ratio(
             np.append(initial_histogram_img, final_histogram_img, axis=0), new_height=matches_img.shape[0])
         final_img = np.append(matches_img, final_img, axis=1)
-        self.histogram_filter_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(final_img))
+        self.histogram_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(final_img))
 
     def plot_point_correspondences(self, train_pts, query_pts, proximity_mask):
         """
@@ -118,7 +118,7 @@ class DataPlotter:
         # plt.imshow(img3)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
+        self.mask_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     def plot_displacements_from_distance_mask(self, match_distance_filter):
 
@@ -146,7 +146,7 @@ class DataPlotter:
         # plt.imshow(img)
         # plt.show()
 
-        self.match_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img))
+        self.mask_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img))
 
     def plot_query_bounding_box(self, bounding_box):
         """

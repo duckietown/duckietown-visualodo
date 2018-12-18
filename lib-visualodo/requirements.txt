@@ -1,5 +1,5 @@
-# dependency on branch master18 of duckietown-world
-# -e git://github.com/duckietown/duckietown-world.git@master18d#egg=duckietown-world
+# dependency on branch master18 of duckietown-visualodo
+# -e git://github.com/duckietown/duckietown-visualodo.git@master18d#egg=duckietown-visualodo
 
 # testing
 comptests==1.4.27
@@ -16,5 +16,3 @@ opencv-python==3.4.3.18
 numpy==1.15.4
 scipy==1.0.1
 matplotlib==2.2.2
-cv_bridge==1.12.8
-

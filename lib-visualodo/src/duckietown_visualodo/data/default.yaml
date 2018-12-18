@@ -1,0 +1,32 @@
+description: >
+  The parameters used in Fall 2019.
+
+#constructor: visual_odometry.VisualOdometry
+
+parameters:
+
+  # Histogram filter parameters
+  filter_by_histogram: True
+  threshold_angle: 1
+  threshold_length: 1.5
+
+  # Image down-sampling factors
+  shrink_x_ratio: 0.5
+  shrink_y_ratio: 0.5
+
+  # Pipeline debugging plots
+  plot_masking: True
+  plot_histogram_filtering: False
+  plot_ransac: False
+
+  # Feature extraction algorithm. Options: 'ORB', 'SURF', 'SIFT'
+  feature_extractor: "ORB"
+
+  # Matcher algorithm. Options 'BF', 'KNN'
+  matcher: "BF"
+
+  # Only used if matcher = 'KNN'
+  knn_neighbors: 2
+  knn_weight: [1.4]
+
+
