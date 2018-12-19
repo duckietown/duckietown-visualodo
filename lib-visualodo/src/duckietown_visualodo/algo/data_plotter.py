@@ -66,7 +66,7 @@ class DataPlotter:
         ax.bar(angle_hist.fitted_gauss_coefficients[1] - angle_th * angle_hist.fitted_gauss_coefficients[2] / 2,
                np.max(angle_hist.histogram), angle_th * angle_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
         ax.plot(gaussian_samples, hist_fit_angle, color='g')
-        initial_histogram_img = self.render_and_crop_canvas(canvas)
+        initial_histogram_img = self.render_and_crop_canvas(canvas, ax)
 
         fig_2 = Figure()
         canvas = FigureCanvas(figure=fig_2)
@@ -76,7 +76,7 @@ class DataPlotter:
         ax.bar(length_hist.fitted_gauss_coefficients[1] - length_th * length_hist.fitted_gauss_coefficients[2] / 2,
                np.max(length_hist.histogram), length_th * length_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
         ax.plot(length_hist.bin_centres, hist_fit_length, color='g')
-        final_histogram_img = self.render_and_crop_canvas(canvas)
+        final_histogram_img = self.render_and_crop_canvas(canvas, ax)
 
         matches_img = np.append(initial_matches_img, final_matches_img, axis=0)
         final_img = self.resize_image_aspect_ratio(
@@ -109,7 +109,7 @@ class DataPlotter:
             except Exception as e:
                 rospy.logerr(e)
 
-        img3 = self.render_and_crop_canvas(canvas)
+        img3 = self.render_and_crop_canvas(canvas, ax)
 
         # plt.figure()
         # plt.imshow(img3)

@@ -15,7 +15,7 @@
             <param name="~camera_topic" value="/$(arg veh)/camera_node/image" type="str"/>
             <param name="~camera_info_topic" value="/$(arg veh)/camera_node/camera_info" type="str"/>
             <param name="~image_transport" value="$(arg _image_transport)" type="str"/>
-            <param name="~joy_topic" value="/$(arg veh)/joy_mapper_node/car_cmd"/>
+            <param name="~joy_topic" value="/$(arg veh)/forward_kinematics_node/velocity"/>
             <param name="~veh" value="$(arg veh)"/>
             <param name="~path" value="$(arg path)"/>
             <param name="~odometry" value="$(arg odometry)"/>

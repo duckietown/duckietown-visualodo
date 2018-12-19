@@ -33,20 +33,20 @@ class VisualOdometryNode:
         self.v = 0.0
 
         # Uncomment for code debugging
-        rospy.set_param("~veh", "maserati")
-        rospy.set_param("~camera_topic", "/maserati/camera_node/image")
-        rospy.set_param("~image_transport", "compressed")
-        rospy.set_param("~joy_topic", "/maserati/joy_mapper_node/car_cmd")
-        rospy.set_param("~camera_info_topic", "/maserati/camera_node/camera_info")
-        rospy.set_param("~path", "path")
-        rospy.set_param("~odometry", "odometry")
-        rospy.set_param("~yaml_root", "/visualodo/visual_odometry_node/parameters/")
-        from rosparam import upload_params
-        from yaml import load
-        f = open("../../lib-visualodo/src/duckietown_visualodo/data/default.yaml", 'r')
-        yamlfile = load(f)
-        f.close()
-        upload_params("/visualodo/visual_odometry_node/", yamlfile)
+        # rospy.set_param("~veh", "maserati")
+        # rospy.set_param("~camera_topic", "/maserati/camera_node/image")
+        # rospy.set_param("~image_transport", "compressed")
+        # rospy.set_param("~joy_topic", "/maserati/joy_mapper_node/car_cmd")
+        # rospy.set_param("~camera_info_topic", "/maserati/camera_node/camera_info")
+        # rospy.set_param("~path", "path")
+        # rospy.set_param("~odometry", "odometry")
+        # rospy.set_param("~yaml_root", "/visualodo/visual_odometry_node/parameters/")
+        # from rosparam import upload_params
+        # from yaml import load
+        # f = open("../../lib-visualodo/src/duckietown_visualodo/data/default.yaml", 'r')
+        # yamlfile = load(f)
+        # f.close()
+        # upload_params("/visualodo/visual_odometry_node/", yamlfile)
 
         self.visual_odometer = VisualOdometry()
 

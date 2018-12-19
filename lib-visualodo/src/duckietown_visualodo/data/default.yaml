@@ -15,7 +15,7 @@ parameters:
   shrink_y_ratio: 0.5
 
   # Pipeline debugging plots
-  plot_masking: True
+  plot_masking: False
   plot_histogram_filtering: False
   plot_ransac: False
 
