@@ -57,29 +57,26 @@ class DataPlotter:
 
         fig = Figure()
         canvas = FigureCanvas(figure=fig)
-        ax = fig.gca()
+        ax = self.remove_figure_padding(fig)
         n_bins = min(int(np.pi/10*len(angle_hist.bin_centres)/np.ptp(angle_hist.bin_centres)), 50)
         histogram_span = [-np.pi/20, np.pi/20]
         gaussian_samples = np.linspace(histogram_span[0], histogram_span[1], n_bins)
         ax.hist(angle_hist.data, bins=n_bins, range=histogram_span, color='b')
         hist_fit_angle = gauss(gaussian_samples, *angle_hist.fitted_gauss_coefficients)
-        ax.bar([angle_hist.fitted_gauss_coefficients[1] - angle_th * angle_hist.fitted_gauss_coefficients[2],
-                angle_hist.fitted_gauss_coefficients[1]] + angle_th / 2 * angle_hist.fitted_gauss_coefficients[2],
+        ax.bar(angle_hist.fitted_gauss_coefficients[1] - angle_th * angle_hist.fitted_gauss_coefficients[2] / 2,
                np.max(angle_hist.histogram), angle_th * angle_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
         ax.plot(gaussian_samples, hist_fit_angle, color='g')
-        initial_histogram_img = self.render_and_crop_canvas(ax, canvas)
+        initial_histogram_img = self.render_and_crop_canvas(canvas)
 
         fig_2 = Figure()
         canvas = FigureCanvas(figure=fig_2)
-        ax = fig_2.gca()
+        ax = self.remove_figure_padding(fig_2)
         ax.hist(length_hist.data, bins=length_hist.bins, color='b')
         hist_fit_length = gauss(length_hist.bin_centres, *length_hist.fitted_gauss_coefficients)
-        ax.bar([length_hist.fitted_gauss_coefficients[1] - length_th * length_hist.fitted_gauss_coefficients[2],
-                length_hist.fitted_gauss_coefficients[1]] + length_th / 2 * length_hist.fitted_gauss_coefficients[2],
-               np.max(length_hist.histogram), length_th * length_hist.fitted_gauss_coefficients[2], alpha=0.4,
-               color='r')
+        ax.bar(length_hist.fitted_gauss_coefficients[1] - length_th * length_hist.fitted_gauss_coefficients[2] / 2,
+               np.max(length_hist.histogram), length_th * length_hist.fitted_gauss_coefficients[2], alpha=0.4, color='r')
         ax.plot(length_hist.bin_centres, hist_fit_length, color='g')
-        final_histogram_img = self.render_and_crop_canvas(ax, canvas)
+        final_histogram_img = self.render_and_crop_canvas(canvas)
 
         matches_img = np.append(initial_matches_img, final_matches_img, axis=0)
         final_img = self.resize_image_aspect_ratio(
@@ -103,7 +100,7 @@ class DataPlotter:
         appended_pixels = img2.shape[0:2]
         ax = fig.gca()
 
-        ax.imshow(np.append(img1, img2, axis=1))
+        ax.imshow(np.append(img1, img2, axis=1), cmap='gray')
         ax.imshow(np.append(proximity_mask, proximity_mask, axis=1), alpha=0.25)
         for i in range(0, len(train_pts)):
             try:
@@ -112,7 +109,7 @@ class DataPlotter:
             except Exception as e:
                 rospy.logerr(e)
 
-        img3 = self.render_and_crop_canvas(ax, canvas)
+        img3 = self.render_and_crop_canvas(canvas)
 
         # plt.figure()
         # plt.imshow(img3)
@@ -124,23 +121,25 @@ class DataPlotter:
 
         fig = Figure()
         canvas = FigureCanvas(figure=fig)
-        ax = fig.gca()
-        ax.imshow(self.query_image_manager.image)
+
+        ax = self.remove_figure_padding(fig)
+
+        ax.imshow(self.query_image_manager.image, cmap='gray')
         ax.imshow(match_distance_filter.proximity_mask, alpha=0.25)
 
         for i in range(0, len(match_distance_filter.close_query_points)):
             point_0 = match_distance_filter.close_train_points[i]
             point_t = match_distance_filter.close_query_points[i]
 
-            ax.plot([point_t[0], point_0[0]], [point_t[1], point_0[1]], 'b-', markerfacecolor='none')
+            ax.plot([point_t[0], point_0[0]], [point_t[1], point_0[1]], 'b-', markerfacecolor='none', zorder=10)
 
         for i in range(0, len(match_distance_filter.distant_query_points)):
             point_0 = match_distance_filter.distant_train_points[i]
             point_t = match_distance_filter.distant_query_points[i]
 
-            ax.plot([point_t[0], point_0[0]], [point_t[1], point_0[1]], 'r-', markerfacecolor='none')
+            ax.plot([point_t[0], point_0[0]], [point_t[1], point_0[1]], 'r-', markerfacecolor='none', zorder=10)
 
-        img = self.render_and_crop_canvas(ax, canvas)
+        img = self.render_and_crop_canvas(canvas, ax)
 
         # plt.figure()
         # plt.imshow(img)
@@ -164,7 +163,7 @@ class DataPlotter:
                              tuple(bounding_box[1, :]), tuple(bounding_box[0, :]), 1, thickness=3)
         plt.imshow(img3)
         plt.subplot2grid((1, 4), (0, 3), colspan=1)
-        plt.imshow(self.query_image_manager.image)
+        plt.imshow(self.query_image_manager.image, cmap='gray')
         plt.show()
 
     def plot_ransac_homography(self, matches, h_matrix, matches_mask):
@@ -204,7 +203,7 @@ class DataPlotter:
             self.ransac_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
 
     @staticmethod
-    def render_and_crop_canvas(ax, canvas):
+    def render_and_crop_canvas(canvas, ax):
         """
         Render canvas as RGB image, and crop the white part around the canvas axis
 
@@ -233,3 +232,10 @@ class DataPlotter:
 
         new_image = cv2.resize(image, (new_width, new_height))
         return new_image
+
+    @staticmethod
+    def remove_figure_padding(fig):
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        return ax

@@ -15,7 +15,7 @@ from match_filters import HistogramLogicFilter, DistanceFilter
 from utils import knn_match_filter, rotation_matrix_to_euler_angles, create_geometric_mask
 from image_manager import ImageManager
 
-from geometry_msgs.msg import Vector3, Quaternion, TransformStamped
+from geometry_msgs.msg import Vector3, Quaternion, Transform
 
 from duckietown_msgs.msg import Twist2DStamped
 
@@ -111,7 +111,7 @@ class VisualOdometry:
 
         self.images[1].load_image(image, gray_scale=True)
         self.extract_image_features(self.images[1])
-        self.images = np.flip(self.images)
+        self.images = self.images[::-1]
 
         if self.images[1].height > 0:
             return self.visual_odometry_core()
@@ -156,9 +156,7 @@ class VisualOdometry:
         query_image = self.images[0]
 
         # Initialize transformation between camera frames
-        t = TransformStamped()
-        t.header.frame_id = "train_pose"
-        t.child_frame_id = "query_pose"
+        t = Transform()
 
         ############################################
         #                MAIN BODY                 #
@@ -311,16 +309,10 @@ class VisualOdometry:
             end = time.time()
             print("TIME: Pose estimation done. Elapsed time: %s", end - start)
 
-            current_time = rospy.Time.now()
+            t.translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
+            t.rotation = Quaternion(z_quaternion[0], z_quaternion[1], z_quaternion[2], z_quaternion[3])
 
-            t.header.stamp = current_time
-
-            t.transform.translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
-            t.transform.rotation = Quaternion(z_quaternion[0], z_quaternion[1], z_quaternion[2], z_quaternion[3])
-
-        except Exception as e:
-            rospy.logerr(e)
-            print("Not enough matches for RANSAC homography")
+        except Exception:
             raise
 
         return t
