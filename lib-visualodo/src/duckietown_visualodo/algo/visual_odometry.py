@@ -25,9 +25,13 @@ class VisualOdometry:
         self.images = np.array([ImageManager(), ImageManager()])
         self.bridge = CvBridge()
 
-        # Intrinsic camera calibration matrix
+        # Intrinsic camera calibration matrices
         self.camera_K = None
         self.camera_D = None
+
+        # Image sizes
+        self.image_h = 1
+        self.image_w = 1
 
         # Current command sent to duckiebot
         self.joy_command = Twist2DStamped()
@@ -40,6 +44,10 @@ class VisualOdometry:
 
         # Initialize parameters
         self.parameters = VisualOdometryParameters()
+
+        # TODO: improve mask -> make it a function of intrinsic camera calibration / estimated depth
+        self.mask_params = [0.5, 0.7, 0.4]
+        self.stingray_mask = []
 
     def set_parameter(self, param_name, param_val, string_param_val):
         """
@@ -57,6 +65,10 @@ class VisualOdometry:
             exec ("self.parameters." + param_name + "=" + string_param_val)
             if param_name == 'feature_extractor':
                 self.initialize_extractor(param_val)
+            elif param_name == 'shrink_x_ratio':
+                self.image_w *= param_val
+            elif param_name == 'shrink_y_ratio':
+                self.image_h *= param_val
         except Exception as e:
             raise NameError("Couldn't set parameter \'" + param_name + "\' with value: " + string_param_val, e)
 
@@ -86,6 +98,13 @@ class VisualOdometry:
 
         self.camera_K = np.resize(camera_info.K, [3, 3])
         self.camera_D = np.asarray(camera_info.D)
+
+        # image_h and image_w contain the shrink factors at this point. Multiply them by the image dimensions
+        self.image_h = self.image_h * camera_info.height
+        self.image_w = self.image_w * camera_info.width
+
+        # Generate the depth filtering mask
+        self.stingray_mask = create_geometric_mask(self.image_h, self.image_w, self.mask_params)
 
     def get_duckiebot_velocity(self, joy_command):
         """
@@ -232,13 +251,10 @@ class VisualOdometry:
 
             start = time.time()
             # Split between far-region and close region matches
-            # TODO: improve mask -> make it a function of intrinsic camera calibration / estimated depth
-            mask_params = [0.5, 0.7, 0.4]
-            stingray_mask = create_geometric_mask(h, w, mask_params)
             match_distance_filter = \
                 DistanceFilter(matched_query_points, matched_train_points, self.camera_K,
                                self.camera_D, (h, w), (parameters.shrink_x_ratio, parameters.shrink_y_ratio))
-            match_distance_filter.split_by_distance_mask(stingray_mask)
+            match_distance_filter.split_by_distance_mask(self.stingray_mask)
 
             end = time.time()
             print("TIME: Mask filtering done. Elapsed time: %s", end - start)

@@ -195,7 +195,7 @@ class DataPlotter:
 
             draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
                                singlePointColor=None,
-                               matchesMask=matches_mask,  # draw only inliners
+                               matchesMask=matches_mask,  # draw only in-liners
                                flags=2)
 
             img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, **draw_params)

@@ -28,6 +28,7 @@ class VisualOdometryNode:
 
         self.active = True
         self.FSM_mode = None
+        self.thread_working = False
 
         self.v = 0.0
 
@@ -140,6 +141,10 @@ class VisualOdometryNode:
         if not self.active:
             return
 
+        if self.thread_working:
+            return
+
+        self.thread_working = True
         start = time.time()
 
         # Run configured visual odometry with input image
@@ -204,6 +209,8 @@ class VisualOdometryNode:
                 rospy.logwarn("Error in estimated rotation matrix")
                 rospy.logerr(e)
                 raise
+
+        self.thread_working = False
 
     def cv_command(self, msg):
         self.visual_odometer.get_duckiebot_velocity(msg)
