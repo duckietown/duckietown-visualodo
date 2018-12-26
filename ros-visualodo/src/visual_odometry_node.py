@@ -32,22 +32,6 @@ class VisualOdometryNode:
 
         self.v = 0.0
 
-        # Uncomment for code debugging
-        # rospy.set_param("~veh", "maserati")
-        # rospy.set_param("~camera_topic", "/maserati/camera_node/image")
-        # rospy.set_param("~image_transport", "compressed")
-        # rospy.set_param("~joy_topic", "/maserati/joy_mapper_node/car_cmd")
-        # rospy.set_param("~camera_info_topic", "/maserati/camera_node/camera_info")
-        # rospy.set_param("~path", "path")
-        # rospy.set_param("~odometry", "odometry")
-        # rospy.set_param("~yaml_root", "/visualodo/visual_odometry_node/parameters/")
-        # from rosparam import upload_params
-        # from yaml import load
-        # f = open("../../lib-visualodo/src/duckietown_visualodo/data/default.yaml", 'r')
-        # yamlfile = load(f)
-        # f.close()
-        # upload_params("/visualodo/visual_odometry_node/", yamlfile)
-
         self.visual_odometer = VisualOdometry()
 
         self.images = np.array([None, None])
@@ -63,10 +47,6 @@ class VisualOdometryNode:
 
         # Setup visual odometry pipeline parameters
         self.setup_params()
-
-        # TODO: fix dtu library import(need to test it with docker and the other part running...)
-        # if self.robot_name is None:
-        #   self.robot_name = dtu.get_current_robot_name()
 
         self.log_info("Waiting for camera info from topic: " + camera_info_topic)
         self.visual_odometer.get_camera_info(rospy.wait_for_message(camera_info_topic, CameraInfo))

@@ -45,7 +45,6 @@ class VisualOdometry:
         # Initialize parameters
         self.parameters = VisualOdometryParameters()
 
-        # TODO: improve mask -> make it a function of intrinsic camera calibration / estimated depth
         self.mask_params = [0.5, 0.7, 0.4]
         self.stingray_mask = []
 
