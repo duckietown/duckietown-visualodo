@@ -1,5 +1,5 @@
 description: >
-  The parameters used in Fall 2019.
+  The parameters used in Fall 2018.
 
 #constructor: visual_odometry.VisualOdometry
 
@@ -28,5 +28,3 @@ parameters:
   # Only used if matcher = 'KNN'
   knn_neighbors: 2
   knn_weight: [1.4]
-
-
