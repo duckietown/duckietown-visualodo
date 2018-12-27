@@ -48,6 +48,10 @@ class VisualOdometry:
         self.mask_params = [0.5, 0.7, 0.4]
         self.stingray_mask = []
 
+        # Visualization images
+        self.histogram_img = None
+        self.maske_img = None
+
     def set_parameter(self, param_name, param_val, string_param_val):
         """
         Sets an inner configuration parameter
@@ -234,7 +238,7 @@ class VisualOdometry:
 
             # Publish the results of histogram filtering
             if parameters.plot_histogram_filtering:
-                processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
+                self.histogram_img = processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
 
         n_final_matches = len(matches)
 
@@ -259,7 +263,7 @@ class VisualOdometry:
             print("TIME: Mask filtering done. Elapsed time: %s", end - start)
 
             if parameters.plot_masking:
-                processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
+                self.mask_img = processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
 
             start = time.time()
             n_distant_matches = len(match_distance_filter.rectified_distant_query_points)
@@ -330,7 +334,7 @@ class VisualOdometry:
         except Exception:
             raise
 
-        return t
+        return t, self.histogram_img, self.mask_img
 
 
 class VisualOdometryParameters:

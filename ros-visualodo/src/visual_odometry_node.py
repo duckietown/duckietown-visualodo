@@ -69,6 +69,11 @@ class VisualOdometryNode:
         self.path_publisher = rospy.Publisher(path_topic, Path, queue_size=1)
         self.odom_publisher = rospy.Publisher(odometry_topic, Odometry, queue_size=1)
 
+        #self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=1)
+        self.histogram_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=1)
+        self.mask_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=1)
+
+
         # Tf broadcaster
         self.transform_broadcaster = tf2.TransformBroadcaster()
 
@@ -128,7 +133,10 @@ class VisualOdometryNode:
         start = time.time()
 
         # Run configured visual odometry with input image
-        vo_transform = self.visual_odometer.get_image_and_trigger_vo(cv_image)
+        vo_result = self.visual_odometer.get_image_and_trigger_vo(cv_image)
+        vo_transform = vo_result[0]
+        histogram_img = vo_result[1]
+        mask_img = vo_result[2]
 
         if vo_transform is not None:
             try:
@@ -189,6 +197,12 @@ class VisualOdometryNode:
                 rospy.logwarn("Error in estimated rotation matrix")
                 rospy.logerr(e)
                 raise
+        if histogram_img is not None:
+            self.histogram_publisher.publish(histogram_img)
+
+        if mask_img is not None:
+            self.mask_publisher.publish(histogram_img)
+
 
         self.thread_working = False
 
