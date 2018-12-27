@@ -65,9 +65,6 @@ jobs:
         command: |
           cd lib-visualodo
           make coverage-coveralls
-          
-    - test-results-store:
-        path: lib-visualodo/out-comptests/junit
 
     - store_artifacts:
         path: lib-visualodo/out-comptests/duckietown_visualodo_tests
