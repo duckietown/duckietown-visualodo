@@ -134,75 +134,78 @@ class VisualOdometryNode:
 
         # Run configured visual odometry with input image
         vo_result = self.visual_odometer.get_image_and_trigger_vo(cv_image)
-        vo_transform = vo_result[0]
-        histogram_img = vo_result[1]
-        mask_img = vo_result[2]
 
-        if vo_transform is not None:
-            try:
-                t_vec = vo_transform.translation
-                z_quaternion = vo_transform.rotation
-                current_time = rospy.Time.now()
+        if vo_result is not None:
 
-                t = TransformStamped()
-                t.header.frame_id = "world"
-                t.child_frame_id = "axis"
+            if vo_result[0] is not None:
+                vo_transform = vo_result[0]
 
-                # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
-                t_vec = np.squeeze(qv_multiply(self.stacked_rotation, [t_vec.x, t_vec.y, t_vec.z]))
-                translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
-                self.stacked_position = Vector3(
-                    self.stacked_position.x + translation.x,
-                    self.stacked_position.y + translation.y,
-                    self.stacked_position.z + translation.z)
+            if vo_transform is not None:
+                try:
+                    t_vec = vo_transform.translation
+                    z_quaternion = vo_transform.rotation
+                    current_time = rospy.Time.now()
 
-                # Add quaternion rotation to stacked rotation to obtain the rotation transformation between world and
-                # duckiebot frames
-                quaternion = tf.transformations.quaternion_multiply(
-                    self.stacked_rotation, [z_quaternion.x, z_quaternion.y, z_quaternion.z, z_quaternion.w])
+                    t = TransformStamped()
+                    t.header.frame_id = "world"
+                    t.child_frame_id = "axis"
 
-                # Store quaternion and transform it to geometry message
-                self.stacked_rotation = quaternion
-                quaternion = Quaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+                    # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
+                    t_vec = np.squeeze(qv_multiply(self.stacked_rotation, [t_vec.x, t_vec.y, t_vec.z]))
+                    translation = Vector3(t_vec[0], t_vec[1], t_vec[2])
+                    self.stacked_position = Vector3(
+                        self.stacked_position.x + translation.x,
+                        self.stacked_position.y + translation.y,
+                        self.stacked_position.z + translation.z)
 
-                # Broadcast transform
-                t.transform.translation = self.stacked_position
-                t.transform.rotation = quaternion
-                self.transform_broadcaster.sendTransform(t)
+                    # Add quaternion rotation to stacked rotation to obtain the rotation transformation between world and
+                    # duckiebot frames
+                    quaternion = tf.transformations.quaternion_multiply(
+                        self.stacked_rotation, [z_quaternion.x, z_quaternion.y, z_quaternion.z, z_quaternion.w])
 
-                # Create odometry and Path msgs
-                odom = Odometry()
-                odom.header.stamp = current_time
-                odom.header.frame_id = "world"
+                    # Store quaternion and transform it to geometry message
+                    self.stacked_rotation = quaternion
+                    quaternion = Quaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
 
-                self.path.header = odom.header
+                    # Broadcast transform
+                    t.transform.translation = self.stacked_position
+                    t.transform.rotation = quaternion
+                    self.transform_broadcaster.sendTransform(t)
 
-                # Set the position
-                odom.pose.pose = Pose(self.stacked_position, quaternion)
-                pose_stamped = PoseStamped()
-                pose_stamped.header = odom.header
-                pose_stamped.pose = odom.pose.pose
-                self.path.poses.append(pose_stamped)
+                    # Create odometry and Path msgs
+                    odom = Odometry()
+                    odom.header.stamp = current_time
+                    odom.header.frame_id = "world"
 
-                odom.child_frame_id = "base_link"
+                    self.path.header = odom.header
 
-                # Publish the messages
-                self.odom_publisher.publish(odom)
-                self.path_publisher.publish(self.path)
+                    # Set the position
+                    odom.pose.pose = Pose(self.stacked_position, quaternion)
+                    pose_stamped = PoseStamped()
+                    pose_stamped.header = odom.header
+                    pose_stamped.pose = odom.pose.pose
+                    self.path.poses.append(pose_stamped)
 
-                rospy.logwarn("TIME: Total time: %s", time.time() - start)
-                rospy.logwarn("===================================================")
+                    odom.child_frame_id = "base_link"
 
-            except AssertionError as e:
-                rospy.logwarn("Error in estimated rotation matrix")
-                rospy.logerr(e)
-                raise
-        if histogram_img is not None:
-            self.histogram_publisher.publish(histogram_img)
+                    # Publish the messages
+                    self.odom_publisher.publish(odom)
+                    self.path_publisher.publish(self.path)
 
-        if mask_img is not None:
-            self.mask_publisher.publish(histogram_img)
+                    rospy.logwarn("TIME: Total time: %s", time.time() - start)
+                    rospy.logwarn("===================================================")
 
+                except AssertionError as e:
+                    rospy.logwarn("Error in estimated rotation matrix")
+                    rospy.logerr(e)
+                    raise
+            if vo_result[1] is not None:
+                histogram_img = vo_result[1]
+                self.histogram_publisher.publish(histogram_img)
+
+            if vo_result[2] is not None:
+                mask_img = vo_result[2]
+                self.mask_publisher.publish(histogram_img)
 
         self.thread_working = False
 

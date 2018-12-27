@@ -22,13 +22,6 @@ class DataPlotter:
         self.query_image_manager = query_image
         self.image_bridge = CvBridge()
 
-        # if parameters.plot_ransac:
-        #     self.ransac_publisher = rospy.Publisher("ransac/image/compressed", CompressedImage, queue_size=1)
-        # if parameters.plot_histogram_filtering:
-        #     self.histogram_publisher = rospy.Publisher("histograms/image/compressed", CompressedImage, queue_size=1)
-        # if parameters.plot_masking:
-        #     self.mask_publisher = rospy.Publisher("masking/image/compressed", CompressedImage, queue_size=1)
-
     def plot_histogram_filtering(self, good_matches, best_matches, histogram_filter):
         """
         Plots the result of the match histogram filtering
@@ -83,8 +76,7 @@ class DataPlotter:
             np.append(initial_histogram_img, final_histogram_img, axis=0), new_height=matches_img.shape[0])
         final_img = np.append(matches_img, final_img, axis=1)
 
-        # self.histogram_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(final_img))
-        return self.image_bridge.cv2cv2_to_compressed_imgmsg(final_img)
+        return self.image_bridge.cv2_to_compressed_imgmsg(final_img)
 
     def plot_point_correspondences(self, train_pts, query_pts, proximity_mask):
         """
@@ -117,7 +109,6 @@ class DataPlotter:
         # plt.imshow(img3)
         # plt.show()
 
-        # self.mask_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
         return img3
 
     def plot_displacements_from_distance_mask(self, match_distance_filter):
@@ -148,7 +139,6 @@ class DataPlotter:
         # plt.imshow(img)
         # plt.show()
 
-        # self.mask_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img))
         return img
 
     def plot_query_bounding_box(self, bounding_box):
@@ -204,7 +194,6 @@ class DataPlotter:
 
             img3 = cv2.drawMatches(img1, kp1, img2, kp2, matches, None, **draw_params)
 
-            # self.ransac_publisher.publish(self.image_bridge.cv2_to_compressed_imgmsg(img3))
             return img3
 
     @staticmethod
