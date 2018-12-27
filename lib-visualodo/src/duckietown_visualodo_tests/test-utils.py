@@ -2,6 +2,7 @@
 import numpy as np
 from comptests import comptest, run_module_tests, comptest_fails
 from duckietown_visualodo.algo.utils import second_largest, is_rotation_matrix
+import duckietown_visualodo
 
 
 
@@ -9,7 +10,7 @@ from duckietown_visualodo.algo.utils import second_largest, is_rotation_matrix
 @comptest
 def check_second_largest():
     a = [1,2,3,4]
-    assert(second_largest(a)==3)
+    assert(duckietown_visualodo.algo.utils.second_largest(a)==3)
 
 @comptest
 def check_is_rotation_matrix():
