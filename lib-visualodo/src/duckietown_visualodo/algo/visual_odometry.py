@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# -*- coding: utf-8 -*-
+
 from __future__ import division
 
 import time
@@ -48,9 +50,10 @@ class VisualOdometry:
         self.mask_params = [0.5, 0.7, 0.4]
         self.stingray_mask = []
 
-        # Visualization images
+
+
         self.histogram_img = None
-        self.maske_img = None
+        self.mask_img = None
 
     def set_parameter(self, param_name, param_val, string_param_val):
         """
