@@ -1,7 +1,6 @@
 # coding=utf-8
 import numpy as np
 from comptests import comptest, run_module_tests, comptest_fails
-from duckietown_visualodo.algo.utils import second_largest
 
 
 @comptest
@@ -14,10 +13,6 @@ def test_sum2():
 def test_supposed_to_fail():
     raise Exception()
 
-@comptest
-def check_util():
-    a = [1,2,3,4]
-    assert(second_largest(a)==3)
-    
+
 if __name__ == '__main__':
     run_module_tests()
