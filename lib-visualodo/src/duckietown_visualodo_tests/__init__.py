@@ -2,6 +2,7 @@
 
 # add an import for each test file in this directory
 from .test1 import *
+from .test_utils import *
 
 
 def jobs_comptests(context):
