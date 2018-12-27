@@ -65,12 +65,7 @@ jobs:
         command: |
           cd lib-visualodo
           make coverage-coveralls
-    - run:
-        name: Create JUnit output
-        when: always
-        command: |
-          cd lib-visualodo
-          make junit
+          
     - test-results-store:
         path: lib-visualodo/out-comptests/junit
 
