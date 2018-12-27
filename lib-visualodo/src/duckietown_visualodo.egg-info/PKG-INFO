@@ -1,14 +1,14 @@
 Metadata-Version: 1.1
 Name: duckietown-visualodo
-Version: 0.1.3
+Version: 0.1.4
 Summary: A pipeline for monocular visual odometry
 Home-page: UNKNOWN
 Author: UNKNOWN
 Author-email: UNKNOWN
 License: UNKNOWN
-Download-URL: http://github.com/duckietown/duckietown-visualodo/tarball/0.1.3
+Download-URL: http://github.com/duckietown/duckietown-visualodo/tarball/0.1.4
 Description: UNKNOWN
 Platform: UNKNOWN
-Classifier: Development Status :: 3 - Beta
+Classifier: Development Status :: 4 - Beta
 Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 3
