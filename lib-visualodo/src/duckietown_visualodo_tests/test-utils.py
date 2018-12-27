@@ -9,7 +9,7 @@ from duckietown_visualodo.algo.utils import second_largest
 @comptest
 def check_util():
     a = [1,2,3,4]
-    assert(second_larges(a)==3)
+    assert(second_largest(a)==3)
 
 @comptest
 def test_sum2():

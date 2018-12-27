@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# -*- coding: utf-8 -*-
+
 from __future__ import division
 
 import time
@@ -45,9 +47,13 @@ class VisualOdometry:
         # Initialize parameters
         self.parameters = VisualOdometryParameters()
 
-        # TODO: improve mask -> make it a function of intrinsic camera calibration / estimated depth
         self.mask_params = [0.5, 0.7, 0.4]
         self.stingray_mask = []
+
+
+
+        self.histogram_img = None
+        self.mask_img = None
 
     def set_parameter(self, param_name, param_val, string_param_val):
         """
@@ -235,7 +241,7 @@ class VisualOdometry:
 
             # Publish the results of histogram filtering
             if parameters.plot_histogram_filtering:
-                processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
+                self.histogram_img = processed_data_plotter.plot_histogram_filtering(unfiltered_matches, matches, histogram_filter)
 
         n_final_matches = len(matches)
 
@@ -260,7 +266,7 @@ class VisualOdometry:
             print("TIME: Mask filtering done. Elapsed time: %s", end - start)
 
             if parameters.plot_masking:
-                processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
+                self.mask_img = processed_data_plotter.plot_displacements_from_distance_mask(match_distance_filter)
 
             start = time.time()
             n_distant_matches = len(match_distance_filter.rectified_distant_query_points)
@@ -331,7 +337,7 @@ class VisualOdometry:
         except Exception:
             raise
 
-        return t
+        return t, self.histogram_img, self.mask_img
 
 
 class VisualOdometryParameters:
