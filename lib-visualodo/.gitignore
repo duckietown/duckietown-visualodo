@@ -4,6 +4,7 @@ commands
 dist
 cli
 out-*
+out*
 *.json.out
 .coverage
 .coverage.*

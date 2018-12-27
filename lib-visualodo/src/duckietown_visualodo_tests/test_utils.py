@@ -14,7 +14,7 @@ def check_second_largest():
 
 @comptest
 def check_is_rotation_matrix():
-    M = np.array([[1,0,0],[0,1,0],[0,0,1]])
+    M=np.array([[1,0,0],[0,1,0],[0,0,1]])
     assert is_rotation_matrix(M)
 
 if __name__ == '__main__':
