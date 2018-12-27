@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/gianmarco/.local/lib/python2.7/site-packages/comptests/registrar.py", line 84, in check_fails
-    f(*args, **kwargs)
-  File "test1.py", line 14, in test_supposed_to_fail
-    raise Exception()
-Exception
