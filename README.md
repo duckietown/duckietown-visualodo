@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/duckietown/duckietown-visualodo.svg?style=shield)](https://circleci.com/gh/duckietown/duckietown-visualodo)
 
-[![Coverage Status](https://coveralls.io/repos/github/duckietown/duckietown-visualodo/badge.svg?branch=master18)](https://coveralls.io/github/duckietown/duckietown-visualodo?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/duckietown/duckietown-visualodo/badge.svg?branch=master)](https://coveralls.io/github/duckietown/duckietown-visualodo?branch=master)
 
 [![PyPI status](https://img.shields.io/pypi/status/duckietown_visualodo.svg)](https://pypi.python.org/pypi/duckietown_visualodo/)
 
