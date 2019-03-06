@@ -81,6 +81,7 @@ class VisualOdometryNode:
         self.path = Path()
         self.stacked_position = Vector3(0, 0, 0)
         self.stacked_rotation = tf.transformations.quaternion_from_euler(0, 0, 0)
+        self.time_stamp = None
 
     def setup_params(self):
         """
@@ -109,10 +110,12 @@ class VisualOdometryNode:
 
     def cb_image_raw(self, image_msg):
         cv_image = self.bridge.imgmsg_to_cv2(image_msg)
+        self.time_stamp = image_msg.header.stamp
         self.cb_image(cv_image)
 
     def cb_image_c(self, image_msg):
         cv_image = self.bridge.compressed_imgmsg_to_cv2(image_msg)
+        self.time_stamp = image_msg.header.stamp
         self.cb_image(cv_image)
 
     def cb_image(self, cv_image):
@@ -149,6 +152,7 @@ class VisualOdometryNode:
                     t = TransformStamped()
                     t.header.frame_id = "world"
                     t.child_frame_id = "axis"
+                    t.header.stamp = self.time_stamp
 
                     # Rotate displacement vector by duckiebot rotation wrt world frame and add it to stacked displacement
                     t_vec = np.squeeze(qv_multiply(self.stacked_rotation, [t_vec.x, t_vec.y, t_vec.z]))
@@ -174,7 +178,7 @@ class VisualOdometryNode:
 
                     # Create odometry and Path msgs
                     odom = Odometry()
-                    odom.header.stamp = current_time
+                    odom.header.stamp = self.time_stamp
                     odom.header.frame_id = "world"
 
                     self.path.header = odom.header
@@ -205,7 +209,7 @@ class VisualOdometryNode:
 
             if vo_result[2] is not None:
                 mask_img = vo_result[2]
-                self.mask_publisher.publish(histogram_img)
+                self.mask_publisher.publish(mask_img)
 
         self.thread_working = False
 
